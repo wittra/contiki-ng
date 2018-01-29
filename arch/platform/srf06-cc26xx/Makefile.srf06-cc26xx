@@ -9,6 +9,7 @@ BOARD ?= srf06/cc26xx
 BOARDS = srf06/cc26xx srf06/cc13xx
 BOARDS += launchpad/cc26xx launchpad/cc26xxr2 launchpad/cc13xx
 BOARDS += sensortag/cc26xx sensortag/cc13xx
+BOARDS += wittratag/cc13xx
 
 CONTIKI_TARGET_DIRS += .
 
