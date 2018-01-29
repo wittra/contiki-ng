@@ -201,7 +201,7 @@
  * \name Device string used on startup
  * @{
  */
-#define BOARD_STRING "TI CC1310 LaunchPad"
+#define BOARD_STRING "TI CC1310 Wittra Tag"
 
 /** @} */
 /*---------------------------------------------------------------------------*/
