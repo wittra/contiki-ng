@@ -56,6 +56,7 @@
 /*---------------------------------------------------------------------------*/
 extern const struct sensors_sensor button_left_sensor;
 extern const struct sensors_sensor button_right_sensor;
+extern const struct sensors_sensor button_fake_sensor;
 /*---------------------------------------------------------------------------*/
 #endif /* BUTTON_SENSOR_H_ */
 /*---------------------------------------------------------------------------*/

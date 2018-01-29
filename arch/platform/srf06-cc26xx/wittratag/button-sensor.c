@@ -159,6 +159,12 @@ config_right(int type, int value)
 }
 /*---------------------------------------------------------------------------*/
 static int
+config_fake(int type, int value)
+{
+  return 1;
+}
+/*---------------------------------------------------------------------------*/
+static int
 status(int type, uint32_t key_io_id)
 {
   switch(type) {
@@ -214,5 +220,6 @@ SENSORS_SENSOR(button_left_sensor, BUTTON_SENSOR, value_left, config_left,
                status_left);
 SENSORS_SENSOR(button_right_sensor, BUTTON_SENSOR, value_right, config_right,
                status_right);
+SENSORS_SENSOR(button_fake_sensor, "Fake", NULL, config_fake, NULL);
 /*---------------------------------------------------------------------------*/
 /** @} */
