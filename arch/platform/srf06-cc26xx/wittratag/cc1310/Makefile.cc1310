@@ -2,7 +2,7 @@
 CPU_FAMILY = cc13xx
 
 ### Add to the source dirs
-CONTIKI_TARGET_DIRS += launchpad/cc1310
+CONTIKI_TARGET_DIRS += wittratag/cc1310
 
-### Include the common launchpad makefile
-include $(PLATFORM_ROOT_DIR)/launchpad/Makefile.launchpad
+### Include the common wittratag makefile
+include $(PLATFORM_ROOT_DIR)/wittratag/Makefile.wittratag
