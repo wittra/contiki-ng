@@ -89,26 +89,106 @@
 #define ti_lib_rom_int_pend_clear                     ROM_IntPendClear
 
 /* IOC API */
-#define ti_lib_rom_ioc_port_configure_set             ROM_IOCPortConfigureSet
+#ifdef ROM_IOCPortConfigureSet
+    #define ti_lib_rom_ioc_port_configure_set         ROM_IOCPortConfigureSet
+#else
+    #define ti_lib_rom_ioc_port_configure_set         NOROM_IOCPortConfigureSet
+#endif
+#ifdef ROM_IOCPortConfigureGet
 #define ti_lib_rom_ioc_port_configure_get             ROM_IOCPortConfigureGet
+#else
+#define ti_lib_rom_ioc_port_configure_get             NOROM_IOCPortConfigureGet
+#endif
+#ifdef ROM_IOCIOShutdownSet
 #define ti_lib_rom_ioc_io_shutdown_set                ROM_IOCIOShutdownSet
+#else
+#define ti_lib_rom_ioc_io_shutdown_set                NOROM_IOCIOShutdownSet
+#endif
+#ifdef ROM_IOCIOModeSet
 #define ti_lib_rom_ioc_io_mode_set                    ROM_IOCIOModeSet
+#else
+#define ti_lib_rom_ioc_io_mode_set                    NOROM_IOCIOModeSet
+#endif
+#ifdef ROM_IOCIOIntSet
 #define ti_lib_rom_ioc_io_int_set                     ROM_IOCIOIntSet
+#else
+#define ti_lib_rom_ioc_io_int_set                     NOROM_IOCIOIntSet
+#endif
+#ifdef ROM_IOCIOPortPullSet
 #define ti_lib_rom_ioc_io_port_pull_set               ROM_IOCIOPortPullSet
+#else
+#define ti_lib_rom_ioc_io_port_pull_set               NOROM_IOCIOPortPullSet
+#endif
+#ifdef ROM_IOCIOHystSet
 #define ti_lib_rom_ioc_io_hyst_set                    ROM_IOCIOHystSet
+#else
+#define ti_lib_rom_ioc_io_hyst_set                    NOROM_IOCIOHystSet
+#endif
+#ifdef ROM_IOCIOInputSet
 #define ti_lib_rom_ioc_io_input_set                   ROM_IOCIOInputSet
+#else
+#define ti_lib_rom_ioc_io_input_set                   NOROM_IOCIOInputSet
+#endif
+#ifdef ROM_IOCIOSlewCtrlSet
 #define ti_lib_rom_ioc_io_slew_ctrl_set               ROM_IOCIOSlewCtrlSet
+#else
+#define ti_lib_rom_ioc_io_slew_ctrl_set               NOROM_IOCIOSlewCtrlSet
+#endif
+#ifdef ROM_IOCIODrvStrengthSet
 #define ti_lib_rom_ioc_io_drv_strength_set            ROM_IOCIODrvStrengthSet
+#else
+#define ti_lib_rom_ioc_io_drv_strength_set            NOROM_IOCIODrvStrengthSet
+#endif
+#ifdef ROM_IOCIOPortIdSet
 #define ti_lib_rom_ioc_io_port_id_set                 ROM_IOCIOPortIdSet
+#else
+#define ti_lib_rom_ioc_io_port_id_set                 NOROM_IOCIOPortIdSet
+#endif
+#ifdef ROM_IOCIntEnable
 #define ti_lib_rom_ioc_int_enable                     ROM_IOCIntEnable
+#else
+#define ti_lib_rom_ioc_int_enable                     NOROM_IOCIntEnable
+#endif
+#ifdef ROM_IOCIntDisable
 #define ti_lib_rom_ioc_int_disable                    ROM_IOCIntDisable
+#else
+#define ti_lib_rom_ioc_int_disable                    NOROM_IOCIntDisable
+#endif
+#ifdef ROM_IOCPinTypeGpioInput
 #define ti_lib_rom_ioc_pin_type_gpio_input            ROM_IOCPinTypeGpioInput
+#else
+#define ti_lib_rom_ioc_pin_type_gpio_input            NOROM_IOCPinTypeGpioInput
+#endif
+#ifdef ROM_IOCPinTypeGpioOutput
 #define ti_lib_rom_ioc_pin_type_gpio_output           ROM_IOCPinTypeGpioOutput
+#else
+#define ti_lib_rom_ioc_pin_type_gpio_output           NOROM_IOCPinTypeGpioOutput
+#endif
+#ifdef ROM_IOCPinTypeUart
 #define ti_lib_rom_ioc_pin_type_uart                  ROM_IOCPinTypeUart
+#else
+#define ti_lib_rom_ioc_pin_type_uart                  NOROM_IOCPinTypeUart
+#endif
+#ifdef ROM_IOCPinTypeSsiMaster
 #define ti_lib_rom_ioc_pin_type_ssi_master            ROM_IOCPinTypeSsiMaster
+#else
+#define ti_lib_rom_ioc_pin_type_ssi_master            NOROM_IOCPinTypeSsiMaster
+#endif
+#ifdef ROM_IOCPinTypeSsiSlave
 #define ti_lib_rom_ioc_pin_type_ssi_slave             ROM_IOCPinTypeSsiSlave
+#else
+#define ti_lib_rom_ioc_pin_type_ssi_slave             NOROM_IOCPinTypeSsiSlave
+#endif
+#ifdef ROM_IOCPinTypeI2c
 #define ti_lib_rom_ioc_pin_type_i2c                   ROM_IOCPinTypeI2c
+#else
+#define ti_lib_rom_ioc_pin_type_i2c                   NOROM_IOCPinTypeI2c
+#endif
+#ifdef ROM_IOCPinTypeAux
 #define ti_lib_rom_ioc_pin_type_aux                   ROM_IOCPinTypeAux
+#else
+#define ti_lib_rom_ioc_pin_type_aux                   NOROM_IOCPinTypeAux
+#endif
 
 /* PRCM API */
 #define ti_lib_rom_prcm_inf_clock_configure_set       ROM_PRCMInfClockConfigureSet
@@ -129,11 +209,32 @@
 #define ti_lib_rom_smph_acquire                       ROM_SMPHAcquire
 
 /* SSI API */
+#ifdef ROM_SSIConfigSetExpClk
 #define ti_lib_rom_ssi_config_set_exp_clk             ROM_SSIConfigSetExpClk
+#else
+#define ti_lib_rom_ssi_config_set_exp_clk             NOROM_SSIConfigSetExpClk
+#endif
+#ifdef ROM_SSIDataPut
 #define ti_lib_rom_ssi_data_put                       ROM_SSIDataPut
+#else
+#define ti_lib_rom_ssi_data_put                       NOROM_SSIDataPut
+#endif
+#ifdef ROM_SSIDataPutNonBlocking
 #define ti_lib_rom_ssi_data_put_non_blocking          ROM_SSIDataPutNonBlocking
+#else
+#define ti_lib_rom_ssi_data_put_non_blocking          NOROM_SSIDataPutNonBlocking
+#endif
+#ifdef ROM_SSIDataGet
 #define ti_lib_rom_ssi_data_get                       ROM_SSIDataGet
+#else
+#define ti_lib_rom_ssi_data_get                       NOROM_SSIDataGet
+#endif
+#ifdef ROM_SSIDataGetNonBlocking
 #define ti_lib_rom_ssi_data_get_non_blocking          ROM_SSIDataGetNonBlocking
+#else
+#define ti_lib_rom_ssi_data_get_non_blocking          NOROM_SSIDataGetNonBlocking
+#endif
+
 
 /* TIMER API */
 #define ti_lib_rom_timer_configure                    ROM_TimerConfigure
