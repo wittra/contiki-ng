@@ -4,5 +4,8 @@ CPU_FAMILY = cc26xxr2
 ### Add to the source dirs
 CONTIKI_TARGET_DIRS += launchpad/cc2640r2
 
+MAKE_NET = MAKE_NET_NULLNET
+MAKE_MAC = MAKE_MAC_NULLMAC
+
 ### Include the common launchpad makefile
 include $(PLATFORM_ROOT_DIR)/launchpad/Makefile.launchpad
