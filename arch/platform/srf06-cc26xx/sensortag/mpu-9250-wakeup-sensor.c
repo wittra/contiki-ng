@@ -42,7 +42,7 @@
 #include "sys/rtimer.h"
 #include "sensor-common.h"
 #include "board-i2c.h"
-#include "gpio-interrupt.h"
+#include "dev/gpio-hal.h"
 
 #include "ti-lib.h"
 
@@ -298,10 +298,10 @@ get_interrupt_status(void)
 }
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Enable wake-on-Motion interrupt in MPU-2950
+ * \brief Enable wake-on-Motion interrupt in MPU-9250
  */
 static void
-enable_mpu2950_wom_irq(void)
+enable_mpu9250_wom_irq(void)
 {
     /* Configuration Wake-on-Motion Interrupt using low power Accel mode */
     SENSOR_SELECT();
@@ -345,14 +345,15 @@ enable_mpu2950_wom_irq(void)
 }
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Handler for Sensortag-CC26XX MPU-2950 interrupts
+ * \brief Handler for Sensortag-CC26XX MPU-9250 interrupts
  */
 static void
-mpu_interrupt_handler(uint8_t ioid)
+mpu_interrupt_handler(gpio_hal_pin_mask_t pin_mask)
 {
-  /* By reading the interrupt register we also clears the interrupt. */
-  if (get_interrupt_status() & WOM_INT_MASK) {
-    sensors_changed(&mpu_9250_wakeup_sensor);
+  if (pin_mask & BOARD_IOID_MPU_INT ||
+      /* By reading the interrupt register we also clears the interrupt. */
+      get_interrupt_status() & WOM_INT_MASK) {
+      sensors_changed(&mpu_9250_wakeup_sensor);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -366,7 +367,7 @@ notify_ready(void *not_used)
 static void
 initialise(void *not_used)
 {
-  enable_mpu2950_wom_irq();
+  enable_mpu9250_wom_irq();
 
   ctimer_set(&startup_timer, SENSOR_STARTUP_DELAY, notify_ready, NULL);
 }
@@ -400,6 +401,9 @@ value(int type)
   return (int)ti_lib_gpio_read_dio(BOARD_IOID_MPU_INT);
 }
 /*---------------------------------------------------------------------------*/
+/* Event handler definitions for MPU Wake-On-Motion. */
+static gpio_hal_event_handler_t mpu9250_wom_event_handler;
+/*---------------------------------------------------------------------------*/
 /**
  * \brief Configuration function for the MPU9250 sensor Wake Up.
  *
@@ -432,8 +436,9 @@ configure(int type, int enable)
     ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
 
     /* Register interrupt vector */
-    gpio_interrupt_register_handler(BOARD_IOID_MPU_INT,
-                                    mpu_interrupt_handler);
+    mpu9250_wom_event_handler.pin_mask = gpio_hal_pin_to_mask(BOARD_IOID_MPU_INT );
+    mpu9250_wom_event_handler.handler = mpu_interrupt_handler;
+    gpio_hal_register_handler(&mpu9250_wom_event_handler);
 
     break;
   case SENSORS_ACTIVE:
