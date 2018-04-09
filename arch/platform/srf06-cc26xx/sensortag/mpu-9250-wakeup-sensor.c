@@ -64,6 +64,8 @@
                                  IOC_INT_ENABLE   | IOC_IOMODE_NORMAL |       \
                                  IOC_NO_WAKE_UP   | IOC_INPUT_ENABLE)
 /*---------------------------------------------------------------------------*/
+#define MPU_INT_PIN                   BOARD_IOID_MPU_INT
+/*---------------------------------------------------------------------------*/
 /* Sensor I2C address */
 #define SENSOR_I2C_ADDRESS            0x68
 #define SENSOR_MAG_I2_ADDRESS         0x0C
@@ -350,7 +352,7 @@ enable_mpu9250_wom_irq(void)
 static void
 mpu_interrupt_handler(gpio_hal_pin_mask_t pin_mask)
 {
-  if (pin_mask & BOARD_IOID_MPU_INT ||
+  if (pin_mask & MPU_INT_PIN ||
       /* By reading the interrupt register we also clears the interrupt. */
       get_interrupt_status() & WOM_INT_MASK) {
       sensors_changed(&mpu_9250_wakeup_sensor);
@@ -398,7 +400,7 @@ value(int type)
     PRINTF("Int Status: 0x%2.2x\n", status);
     return status & WOM_INT_MASK;
   */
-  return (int)ti_lib_gpio_read_dio(BOARD_IOID_MPU_INT);
+  return (int)ti_lib_gpio_read_dio(MPU_INT_PIN);
 }
 /*---------------------------------------------------------------------------*/
 /* Event handler definitions for MPU Wake-On-Motion. */
@@ -420,14 +422,14 @@ configure(int type, int enable)
 {
   switch(type) {
   case SENSORS_HW_INIT:
-    ti_lib_ioc_int_disable(BOARD_IOID_MPU_INT);
-    ti_lib_gpio_clear_event_dio(BOARD_IOID_MPU_INT);
+    ti_lib_ioc_int_disable(MPU_INT_PIN);
+    ti_lib_gpio_clear_event_dio(MPU_INT_PIN);
 
     /* Enable the GPIO clock when the CM3 is running */
     ti_lib_prcm_peripheral_run_enable(PRCM_PERIPH_GPIO);
 
     /* S/W control, input, pull-down */
-    ti_lib_ioc_port_configure_set(BOARD_IOID_MPU_INT, IOC_PORT_GPIO,
+    ti_lib_ioc_port_configure_set(MPU_INT_PIN, IOC_PORT_GPIO,
                                   MPU_INT_IO_CFG);
 
     ti_lib_rom_ioc_pin_type_gpio_output(BOARD_IOID_MPU_POWER);
@@ -436,7 +438,7 @@ configure(int type, int enable)
     ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
 
     /* Register interrupt vector */
-    mpu9250_wom_event_handler.pin_mask = gpio_hal_pin_to_mask(BOARD_IOID_MPU_INT );
+    mpu9250_wom_event_handler.pin_mask = gpio_hal_pin_to_mask(MPU_INT_PIN);
     mpu9250_wom_event_handler.handler = mpu_interrupt_handler;
     gpio_hal_register_handler(&mpu9250_wom_event_handler);
 
@@ -445,7 +447,7 @@ configure(int type, int enable)
     if(enable) {
       PRINTF("MPU WOM Enabled\n");
       power_up();
-      ti_lib_ioc_int_enable(BOARD_IOID_MPU_INT);
+      ti_lib_ioc_int_enable(MPU_INT_PIN);
     } else {
       if(HWREG(GPIO_BASE + GPIO_O_DOUT31_0) & BOARD_MPU_POWER) {
         PRINTF("MPU WOM Disabled\n");
@@ -453,7 +455,7 @@ configure(int type, int enable)
         ctimer_stop(&startup_timer);
         sensor_sleep();
         while(ti_lib_i2c_master_busy(I2C0_BASE));
-        ti_lib_ioc_int_disable(BOARD_IOID_MPU_INT);
+        ti_lib_ioc_int_disable(MPU_INT_PIN);
         state = SENSOR_STATE_DISABLED;
         ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
       }
@@ -477,7 +479,7 @@ status(int type)
   case SENSORS_ACTIVE:
   case SENSORS_READY:
 #ifdef USE_HW_INT_PIN
-    return (ti_lib_ioc_port_configure_get(BOARD_IOID_MPU_INT)
+    return (ti_lib_ioc_port_configure_get(MPU_INT_PIN)
             & IOC_INT_ENABLE) == IOC_INT_ENABLE;
 #else
     return get_interrupt_status() & WOM_INT_MASK;
