@@ -359,8 +359,6 @@ PROCESS_THREAD(cc26xx_demo_process, ev, data)
         get_hdc_reading();
       } else if(data == &tmp_007_sensor) {
         get_tmp_reading();
-      } else if(data == &mpu_9250_sensor) {
-        get_mpu_reading();
 #endif
       }
     }
