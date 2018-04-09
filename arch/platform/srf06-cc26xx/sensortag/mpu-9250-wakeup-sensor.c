@@ -355,7 +355,7 @@ mpu_interrupt_handler(gpio_hal_pin_mask_t pin_mask)
   if (pin_mask & MPU_INT_PIN ||
       /* By reading the interrupt register we also clears the interrupt. */
       get_interrupt_status() & WOM_INT_MASK) {
-      sensors_changed(&mpu_9250_wakeup_sensor);
+    sensors_changed(&mpu_9250_wakeup_sensor);
   }
 }
 /*---------------------------------------------------------------------------*/
