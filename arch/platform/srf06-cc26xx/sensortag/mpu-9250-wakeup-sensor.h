@@ -28,35 +28,49 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
-/** \addtogroup cc26xx-srf-tag
+/**
+ * \addtogroup sensortag-cc26xx-peripherals
  * @{
  *
- * \defgroup sensortag-cc26xx-peripherals Sensortag CC1350/CC2650 common
+ * \defgroup sensortag-cc26xx-mpu SensorTag 2.0 Motion Processing Unit
  *
- * Defines related to Sensortag sensors. The two sensortags are identical to a
- * very large extent. Everything documented within this group applies to both
- * sensortags.
+ * Driver for the Invensense MPU9250 Motion Processing Unit.
  *
+ * Due to the time required between triggering a reading and the reading
+ * becoming available, this driver is meant to be used in an asynchronous
+ * fashion. The caller must first activate the sensor by calling
+ * mpu_9250_sensor.configure(SENSORS_ACTIVE, xyz);
+ * The value for the xyz arguments depends on the required readings. If the
+ * caller intends to read both the accelerometer as well as the gyro then
+ * xyz should be MPU_9250_SENSOR_TYPE_ALL. If the caller only needs to take a
+ * reading from one of the two elements, xyz should be one of
+ * MPU_9250_SENSOR_TYPE_ACC or MPU_9250_SENSOR_TYPE_GYRO
+ *
+ * Calling .configure() will power up the sensor and initialise it. When the
+ * sensor is ready to provide readings, the driver will generate a
+ * sensors_changed event.
+ *
+ * Calls to .status() will return the driver's state which could indicate that
+ * the sensor is off, booting or on.
+ *
+ * Once a reading has been taken, the caller has two options:
+ * - Turn the sensor off by calling SENSORS_DEACTIVATE, but in order to take
+ *   subsequent readings the sensor must be started up all over
+ * - Leave the sensor on. In this scenario, the caller can simply keep calling
+ *   value() for subsequent readings, but having the sensor on will consume
+ *   more energy, especially if both accelerometer and the gyro are on.
  * @{
  *
  * \file
- * Header file with definitions related to the sensors on the Sensortags
- *
- * \note   Do not include this file directly.
+ * Header file for the Sensortag Invensense MPU9250 motion processing unit
  */
 /*---------------------------------------------------------------------------*/
-#ifndef BOARD_PERIPHERALS_H_
-#define BOARD_PERIPHERALS_H_
+#ifndef MPU_9250_WAKEUP_SENSOR_H_
+#define MPU_9250_WAKEUP_SENSOR_H_
 /*---------------------------------------------------------------------------*/
-#include "bmp-280-sensor.h"
-#include "tmp-007-sensor.h"
-#include "opt-3001-sensor.h"
-#include "hdc-1000-sensor.h"
-#include "mpu-9250-wakeup-sensor.h"
-#include "buzzer.h"
-#include "ext-flash.h"
+extern const struct sensors_sensor mpu_9250_wakeup_sensor;
 /*---------------------------------------------------------------------------*/
-#endif /* BOARD_PERIPHERALS_H_ */
+#endif /* MPU_9250_WAKEUP_SENSOR_H_ */
 /*---------------------------------------------------------------------------*/
 /**
  * @}
