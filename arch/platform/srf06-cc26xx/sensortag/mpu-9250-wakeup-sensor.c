@@ -331,7 +331,7 @@ enable_mpu9250_wom_irq(void)
     sensor_common_write_reg(ACCEL_INTEL_CTRL, &val, 1);
 
     /* Set Motion Threshold */
-    val = WOM_THRESHOLD(20); /* (0~1022mg) */
+    val = WOM_THRESHOLD(75); /* (0~1022mg) */
     sensor_common_write_reg(WOM_THR, &val, 1);
 
     /* Set Frequency of Wake-up */
