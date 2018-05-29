@@ -203,6 +203,7 @@ link_stats_input_callback(const linkaddr_t *lladdr)
     if(stats != NULL) {
       /* Initialize */
       stats->rssi = packet_rssi;
+      stats->last_rx_time = clock_time();
 #if LINK_STATS_INIT_ETX_FROM_RSSI
       stats->etx = guess_etx_from_rssi(stats);
 #else /* LINK_STATS_INIT_ETX_FROM_RSSI */
@@ -215,6 +216,7 @@ link_stats_input_callback(const linkaddr_t *lladdr)
   /* Update RSSI EWMA */
   stats->rssi = ((int32_t)stats->rssi * (EWMA_SCALE - EWMA_ALPHA) +
       (int32_t)packet_rssi * EWMA_ALPHA) / EWMA_SCALE;
+  stats->last_rx_time = clock_time();
 }
 /*---------------------------------------------------------------------------*/
 /* Periodic timer called at a period of FRESHNESS_HALF_LIFE */
