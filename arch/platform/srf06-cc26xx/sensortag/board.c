@@ -74,7 +74,7 @@ shutdown_handler(uint8_t mode)
     SENSORS_DEACTIVATE(opt_3001_sensor);
     SENSORS_DEACTIVATE(tmp_007_sensor);
     SENSORS_DEACTIVATE(hdc_1000_sensor);
-    SENSORS_DEACTIVATE(mpu_9250_sensor);
+    SENSORS_DEACTIVATE(mpu_9250_wakeup_sensor);
     ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
   }
 

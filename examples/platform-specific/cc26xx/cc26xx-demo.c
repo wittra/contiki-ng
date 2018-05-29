@@ -103,6 +103,7 @@
 
 #if BOARD_SENSORTAG
 #define CC26XX_DEMO_TRIGGER_3     BOARD_BUTTON_HAL_INDEX_REED_RELAY
+#define CC26XX_DEMO_TRIGGER_4     &mpu_9250_wakeup_sensor
 #endif
 /*---------------------------------------------------------------------------*/
 static struct etimer et;
@@ -119,24 +120,12 @@ AUTOSTART_PROCESSES(&cc26xx_demo_process);
 #define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
-static struct ctimer bmp_timer, opt_timer, hdc_timer, tmp_timer, mpu_timer;
+static struct ctimer bmp_timer, opt_timer, hdc_timer, tmp_timer;
 /*---------------------------------------------------------------------------*/
 static void init_bmp_reading(void *not_used);
 static void init_opt_reading(void *not_used);
 static void init_hdc_reading(void *not_used);
 static void init_tmp_reading(void *not_used);
-static void init_mpu_reading(void *not_used);
-/*---------------------------------------------------------------------------*/
-static void
-print_mpu_reading(int reading)
-{
-  if(reading < 0) {
-    printf("-");
-    reading = -reading;
-  }
-
-  printf("%d.%02d", reading / 100, reading % 100);
-}
 /*---------------------------------------------------------------------------*/
 static void
 get_bmp_reading()
@@ -232,48 +221,6 @@ get_light_reading()
 }
 /*---------------------------------------------------------------------------*/
 static void
-get_mpu_reading()
-{
-  int value;
-  clock_time_t next = SENSOR_READING_PERIOD +
-    (random_rand() % SENSOR_READING_RANDOM);
-
-  printf("MPU Gyro: X=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
-
-  printf("MPU Gyro: Y=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
-
-  printf("MPU Gyro: Z=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
-
-  printf("MPU Acc: X=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
-  print_mpu_reading(value);
-  printf(" G\n");
-
-  printf("MPU Acc: Y=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
-  print_mpu_reading(value);
-  printf(" G\n");
-
-  printf("MPU Acc: Z=");
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
-  print_mpu_reading(value);
-  printf(" G\n");
-
-  SENSORS_DEACTIVATE(mpu_9250_sensor);
-
-  ctimer_set(&mpu_timer, next, init_mpu_reading, NULL);
-}
-/*---------------------------------------------------------------------------*/
-static void
 init_bmp_reading(void *not_used)
 {
   SENSORS_ACTIVATE(bmp_280_sensor);
@@ -300,7 +247,7 @@ init_tmp_reading(void *not_used)
 static void
 init_mpu_reading(void *not_used)
 {
-  mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
+  mpu_9250_wakeup_sensor.configure(SENSORS_ACTIVE, 1);
 }
 #endif
 /*---------------------------------------------------------------------------*/
@@ -404,14 +351,14 @@ PROCESS_THREAD(cc26xx_demo_process, ev, data)
     } else if(ev == sensors_event) {
       if(data == &bmp_280_sensor) {
         get_bmp_reading();
+      } else if(data == CC26XX_DEMO_TRIGGER_4) {
+        printf("WakeUp\n");
       } else if(data == &opt_3001_sensor) {
         get_light_reading();
       } else if(data == &hdc_1000_sensor) {
         get_hdc_reading();
       } else if(data == &tmp_007_sensor) {
         get_tmp_reading();
-      } else if(data == &mpu_9250_sensor) {
-        get_mpu_reading();
 #endif
       }
     }
