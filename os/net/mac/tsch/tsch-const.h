@@ -77,10 +77,16 @@
 /* The approximate number of slots per second */
 #define TSCH_SLOTS_PER_SECOND (1000000 / TSCH_DEFAULT_TS_TIMESLOT_LENGTH)
 
+#ifdef TSCH_CONF_BYTE_DURATION_US
+#define TSCH_BYTE_DURATION_US TSCH_CONF_BYTE_DURATION_US
+#else
+#define TSCH_BYTE_DURATION_US 32
+#endif
+
 /* Calculate packet tx/rx duration in rtimer ticks based on sent
  * packet len in bytes with 802.15.4 250kbps data rate.
  * One byte = 32us. Add two bytes for CRC and one for len field */
-#define TSCH_PACKET_DURATION(len) US_TO_RTIMERTICKS(32 * ((len) + 3))
+#define TSCH_PACKET_DURATION(len) US_TO_RTIMERTICKS(TSCH_BYTE_DURATION_US * ((len) + 3))
 
 /* Convert rtimer ticks to clock and vice versa */
 #define TSCH_CLOCK_TO_TICKS(c) (((c) * RTIMER_SECOND) / CLOCK_SECOND)
@@ -152,6 +158,27 @@
 #define TSCH_DEFAULT_TS_MAX_ACK            2400
 #define TSCH_DEFAULT_TS_MAX_TX             4256
 #define TSCH_DEFAULT_TS_TIMESLOT_LENGTH    65000
+
+#elif TSCH_CONF_DEFAULT_TIMESLOT_LENGTH == 40000U
+/* Default timeslot timing for CC13xx Sub-GHz requiring 40ms slots
+   The data rate is 50 kbps => 6250 bytes per second.
+   Define these variables in projects-conf.h in the project directory:
+   #define TSCH_CONF_DEFAULT_TIMESLOT_LENGTH  40000U
+   #define TSCH_CONF_RX_WAIT                  1200
+   #define TSCH_CONF_BYTE_DURATION_US (1000000 / 6250) */
+
+#define TSCH_DEFAULT_TS_CCA_OFFSET         1800
+#define TSCH_DEFAULT_TS_CCA                128
+#define TSCH_DEFAULT_TS_TX_OFFSET          2120
+#define TSCH_DEFAULT_TS_RX_OFFSET          (TSCH_DEFAULT_TS_TX_OFFSET - (TSCH_CONF_RX_WAIT / 2))
+#define TSCH_DEFAULT_TS_RX_ACK_DELAY       2300
+#define TSCH_DEFAULT_TS_TX_ACK_DELAY       2500
+#define TSCH_DEFAULT_TS_RX_WAIT            TSCH_CONF_RX_WAIT
+#define TSCH_DEFAULT_TS_ACK_WAIT           800
+#define TSCH_DEFAULT_TS_RX_TX              192
+#define TSCH_DEFAULT_TS_MAX_ACK            10000
+#define TSCH_DEFAULT_TS_MAX_TX             25000
+#define TSCH_DEFAULT_TS_TIMESLOT_LENGTH    40000
 
 #else
 #error "TSCH: Unsupported default timeslot length"
