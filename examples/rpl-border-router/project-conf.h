@@ -43,4 +43,24 @@
 #define UIP_CONF_TCP 1
 #endif
 
+/*******************************************************/
+/******************* Configure TSCH ********************/
+/*******************************************************/
+
+/* IEEE802.15.4 PANID */
+#define IEEE802154_CONF_PANID 0x81a5
+
+/* Do not start TSCH at init, wait for NETSTACK_MAC.on() */
+#define TSCH_CONF_AUTOSTART 1
+
+/* 6TiSCH minimal schedule length.
+ * Larger values result in less frequent active slots: reduces capacity and saves energy. */
+#define TSCH_SCHEDULE_CONF_DEFAULT_LENGTH 3
+
+/* Configuration for TSCH with prop mode driver */
+#define TSCH_CONF_DEFAULT_TIMESLOT_LENGTH  40000U
+#define TSCH_CONF_RX_WAIT                  1200
+/* The data rate is 50 kbps = 6250 bytes per second. */
+#define TSCH_CONF_BYTE_DURATION_US (1000000 / 6250)
+
 #endif /* PROJECT_CONF_H_ */
