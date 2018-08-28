@@ -42,6 +42,7 @@
  * - The TI CC2650 LaunchPad
  * - The TI CC1310 LaunchPad
  * - The TI CC1350 LaunchPad
+ * - The TI CC1350 WittraTag
  * @{
  */
 #include "ti-lib.h"
