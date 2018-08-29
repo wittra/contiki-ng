@@ -68,8 +68,8 @@ static void
 shutdown_handler(uint8_t mode)
 {
   if(mode == LPM_MODE_SHUTDOWN) {
-    SENSORS_DEACTIVATE(mpu_9250_wakeup_sensor);
-    ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
+    //SENSORS_DEACTIVATE(mpu_9250_wakeup_sensor);
+    //ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
   }
 
   /* In all cases, stop the I2C */
@@ -89,34 +89,11 @@ LPM_MODULE(wittratag_module, NULL, shutdown_handler, lpm_wakeup_handler,
 static void
 configure_unused_pins(void)
 {
-  /* DP[0..3] */
+  /* DP[0..1] */
   ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DP0);
   ti_lib_ioc_io_port_pull_set(BOARD_IOID_DP0, IOC_IOPULL_DOWN);
   ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DP1);
   ti_lib_ioc_io_port_pull_set(BOARD_IOID_DP1, IOC_IOPULL_DOWN);
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DP2);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_DP2, IOC_IOPULL_DOWN);
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DP3);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_DP3, IOC_IOPULL_DOWN);
-
-  /* Devpack ID */
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DEVPK_ID);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_DEVPK_ID, IOC_IOPULL_UP);
-
-  /* Digital Microphone */
-  ti_lib_ioc_pin_type_gpio_output(BOARD_IOID_MIC_POWER);
-  ti_lib_gpio_clear_dio(BOARD_IOID_MIC_POWER);
-  ti_lib_ioc_io_drv_strength_set(BOARD_IOID_MIC_POWER, IOC_CURRENT_2MA,
-                                 IOC_STRENGTH_MIN);
-
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_AUDIO_DI);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_AUDIO_DI, IOC_IOPULL_DOWN);
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_AUDIO_CLK);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_AUDIO_CLK, IOC_IOPULL_DOWN);
-
-  /* UART over Devpack - TX only (ToDo: Map all UART pins to Debugger) */
-  ti_lib_ioc_pin_type_gpio_input(BOARD_IOID_DP5_UARTTX);
-  ti_lib_ioc_io_port_pull_set(BOARD_IOID_DP5_UARTTX, IOC_IOPULL_DOWN);
 }
 /*---------------------------------------------------------------------------*/
 void

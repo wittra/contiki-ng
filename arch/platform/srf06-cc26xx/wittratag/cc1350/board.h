@@ -84,13 +84,8 @@
 #define BOARD_IOID_DP4_UARTRX     IOID_28
 #define BOARD_IOID_DP5_UARTTX     IOID_29
 
-#if BOARD_CONF_DEBUGGER_DEVPACK
 #define BOARD_IOID_UART_RX        BOARD_IOID_DP4_UARTRX
 #define BOARD_IOID_UART_TX        BOARD_IOID_DP5_UARTTX
-#else
-#define BOARD_IOID_UART_RX        IOID_17
-#define BOARD_IOID_UART_TX        IOID_16
-#endif
 
 #define BOARD_IOID_UART_CTS       IOID_UNUSED
 #define BOARD_IOID_UART_RTS       IOID_UNUSED
@@ -98,34 +93,6 @@
 #define BOARD_UART_TX             (1 << BOARD_IOID_UART_TX)
 #define BOARD_UART_CTS            (1 << BOARD_IOID_UART_CTS)
 #define BOARD_UART_RTS            (1 << BOARD_IOID_UART_RTS)
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name Button IOID mapping
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_KEY_LEFT       IOID_15
-#define BOARD_IOID_KEY_RIGHT      IOID_4
-#define BOARD_KEY_LEFT            (1 << BOARD_IOID_KEY_LEFT)
-#define BOARD_KEY_RIGHT           (1 << BOARD_IOID_KEY_RIGHT)
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name Buzzer configuration
- * @{
- */
-#define BOARD_IOID_BUZZER         IOID_21 /**< Buzzer Pin */
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name Reed Relay IOID mapping
- *
- * Those values are not meant to be modified by the user
- * @{
- */
-#define BOARD_IOID_REED_RELAY     IOID_1
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
@@ -139,12 +106,12 @@
 #define BOARD_IOID_FLASH_SCK        IOID_17
 #define BOARD_IOID_FLASH_MOSI       IOID_19
 #define BOARD_IOID_FLASH_MISO       IOID_18
-#define BOARD_IOID_FLASH_CS         IOID_14
+#define BOARD_IOID_FLASH_CS         IOID_21
 
 #define EXT_FLASH_SPI_PIN_SCK       17
 #define EXT_FLASH_SPI_PIN_MOSI      19
 #define EXT_FLASH_SPI_PIN_MISO      18
-#define EXT_FLASH_SPI_PIN_CS        14
+#define EXT_FLASH_SPI_PIN_CS        21
 
 #define EXT_FLASH_DEVICE_ID         0x14
 #define EXT_FLASH_MID               0xC2
@@ -159,60 +126,109 @@
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_IOID_SDA            IOID_5 /**< Interface 0 SDA: All sensors bar MPU */
-#define BOARD_IOID_SCL            IOID_6 /**< Interface 0 SCL: All sensors bar MPU */
-#define BOARD_IOID_SDA_HP         IOID_8 /**< Interface 1 SDA: MPU */
-#define BOARD_IOID_SCL_HP         IOID_9 /**< Interface 1 SCL: MPU */
+#define BOARD_IOID_SDA_HP         IOID_UNUSED /**< Interface 1 SDA: MPU */
+#define BOARD_IOID_SCL_HP         IOID_UNUSED /**< Interface 1 SCL: MPU */
+#define BOARD_IOID_SDA            IOID_5 /**< Interface 0 SDA: All sensors */
+#define BOARD_IOID_SCL            IOID_6 /**< Interface 0 SCL: All sensors */
+#define BOARD_IOID_I2C_BUS_EN     IOID_3 /**< Enable I2C bus to USB conn */
+#define BOARD_EN_I2C_BUS          (1 << BOARD_IOID_I2C_BUS_EN)
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
- * \brief MPU IOID mappings
+ * \brief Gyroscope IOID mappings
  *
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_IOID_MPU_INT        IOID_7
-#define BOARD_IOID_MPU_POWER      IOID_12
-#define BOARD_MPU_INT             (1 << BOARD_IOID_MPU_INT)
-#define BOARD_MPU_POWER           (1 << BOARD_IOID_MPU_POWER)
+#define BOARD_IOID_GYRO_POWER     IOID_8
+#define BOARD_GYRO_POWER          (1 << BOARD_IOID_GYRO_POWER)
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Board devpack IOID mappings (LCD etc.)
+ * \brief Accelerometer IOID mappings
  *
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_IOID_AUDIOFS_TDO        IOID_16
-#define BOARD_IOID_DEVPACK_CS         IOID_20
-#define BOARD_IOID_DEVPK_LCD_EXTCOMIN IOID_22
-#define BOARD_IOID_AUDIODO            IOID_22
-#define BOARD_IOID_DP2                IOID_23
-#define BOARD_IOID_DP1                IOID_24
-#define BOARD_IOID_DP0                IOID_25
-#define BOARD_IOID_DP3                IOID_27
-#define BOARD_IOID_DEVPK_ID           IOID_30
-#define BOARD_DEVPACK_CS              (1 << BOARD_IOID_DEVPACK_CS)
+#define BOARD_IOID_ACC_INT        IOID_2
+#define BOARD_ACC_INT             (1 << BOARD_IOID_ACC_INT)
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
- * \brief TMP Sensor
+ * \name Hall Sensor IOID mapping
  *
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_IOID_TMP_RDY          IOID_11
+#define BOARD_IOID_HALL_INT       IOID_1
+#define BOARD_IOID_HALL_PWR       IOID_7
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Digital Microphone
+ * \brief GPS IOID mappings
  *
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_IOID_MIC_POWER        IOID_13
-#define BOARD_IOID_AUDIO_DI         IOID_2
-#define BOARD_IOID_AUDIO_CLK        IOID_3
+#define BOARD_IOID_GPS_POWER      IOID_10
+#define BOARD_IOID_GPS_WAKEUP     IOID_11
+#define BOARD_IOID_GPS_CTS        IOID_12
+#define BOARD_IOID_GPS_ON         IOID_13
+#define BOARD_IOID_GPS_RTS        IOID_14
+#define BOARD_GPS_POWER           (1 << BOARD_IOID_GPS_POWER)
+#define BOARD_GPS_WAKEUP          (1 << BOARD_IOID_GPS_WAKEUP)
+#define BOARD_GPS_ON              (1 << BOARD_IOID_GPS_ON)
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \brief Charger IOID mappings
+ *
+ * Those values are not meant to be modified by the user
+ * @{
+ */
+#define BOARD_IOID_CHARGER_EN     IOID_24
+#define BOARD_IOID_CHARGER_INT    IOID_22
+#define BOARD_CHARGER_EN          (1 << BOARD_IOID_CHARGER_EN)
+#define BOARD_CHARGER_INT         (1 << BOARD_IOID_CHARGER_INT)
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \brief 1V8 VBUS Control IOID mappings
+ *
+ * Those values are not meant to be modified by the user
+ * @{
+ */
+#define BOARD_IOID_1V8_VBUS_EN    IOID_23
+#define BOARD_1V8_VBUS_EN         (1 << BOARD_IOID_1V8_VBUS_EN)
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \brief ADC inputs and control IOID mappings
+ *
+ * For DIO to AUXIO mapping, see "Technical Reference Manual", SWCU117H,
+ * page 988, table 11-2.
+ *
+ * Those values are not meant to be modified by the user
+ * @{
+ */
+#define BOARD_IOID_ADC_VEXT       IOID_25
+#define BOARD_IOID_ADC_ID         IOID_26
+#define BOARD_IOID_ADC_VMAIN      IOID_27
+#define BOARD_IOID_ADC_ON         IOID_30
+#define BOARD_ADC_ON              (1 << BOARD_IOID_ADC_ON)
+#define BOARD_AUXIO_ADC_VEXT      ADC_COMPB_IN_AUXIO5
+#define BOARD_AUXIO_ADC_ID        ADC_COMPB_IN_AUXIO4
+#define BOARD_AUXIO_ADC_VMAIN     ADC_COMPB_IN_AUXIO3
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \brief Unused pins IOID mappings
+ *
+ * Those values are not meant to be modified by the user
+ * @{
+ */
+#define BOARD_IOID_DP0            IOID_4
+#define BOARD_IOID_DP1            IOID_9
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
@@ -242,14 +258,12 @@
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Board indices for the button HAL
+ * \brief Board indices for the button HAL, external units considered buttons
  *
  * Those values are not meant to be modified by the user
  * @{
  */
-#define BOARD_BUTTON_HAL_INDEX_KEY_LEFT   0x00
-#define BOARD_BUTTON_HAL_INDEX_KEY_RIGHT  0x01
-#define BOARD_BUTTON_HAL_INDEX_REED_RELAY 0xFF
+#define BOARD_BUTTON_HAL_INDEX_HALL_RELAY 0x00
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**

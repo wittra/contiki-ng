@@ -37,14 +37,11 @@
  */
 /*---------------------------------------------------------------------------*/
 #include "contiki.h"
-/* FIX: hdc-1000 sensor is still here due to some error in mpu-9250 driver
-   that makes compilation fail if it is not there. */
-#include "sensortag/hdc-1000-sensor.h"
-#include "wittratag/mpu-9250-wakeup-sensor.h"
+#include "lib/sensors.h"
 
 #include <string.h>
 /*---------------------------------------------------------------------------*/
 /** \brief Exports a global symbol to be used by the sensor API */
-SENSORS(&mpu_9250_wakeup_sensor);
+SENSORS(NULL);
 /*---------------------------------------------------------------------------*/
 /** @} */

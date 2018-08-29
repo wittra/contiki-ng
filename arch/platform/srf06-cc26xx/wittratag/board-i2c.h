@@ -45,6 +45,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 /*---------------------------------------------------------------------------*/
+/* Wittra Tag doesn't use interface 1, consider off state for interface 0.   */
 #define BOARD_I2C_INTERFACE_0     0
 #define BOARD_I2C_INTERFACE_1     1
 /*---------------------------------------------------------------------------*/

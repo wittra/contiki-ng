@@ -45,18 +45,10 @@
 
 #include <stdbool.h>
 /*---------------------------------------------------------------------------*/
-BUTTON_HAL_BUTTON(reed_relay, "Reed Relay", BOARD_IOID_REED_RELAY, \
-                  GPIO_HAL_PIN_CFG_PULL_DOWN, \
-                  BOARD_BUTTON_HAL_INDEX_REED_RELAY, true);
-
-BUTTON_HAL_BUTTON(key_left, "Key Left", BOARD_IOID_KEY_LEFT, \
-                  GPIO_HAL_PIN_CFG_PULL_UP, BOARD_BUTTON_HAL_INDEX_KEY_LEFT, \
-                  true);
-
-BUTTON_HAL_BUTTON(key_right, "Key Right", BOARD_IOID_KEY_RIGHT, \
-                  GPIO_HAL_PIN_CFG_PULL_UP, BOARD_BUTTON_HAL_INDEX_KEY_RIGHT, \
-                  true);
+BUTTON_HAL_BUTTON(hall_relay, "Hall Relay", BOARD_IOID_HALL_INT, \
+                  GPIO_HAL_PIN_CFG_PULL_NONE, \
+                  BOARD_BUTTON_HAL_INDEX_HALL_RELAY, true);
 /*---------------------------------------------------------------------------*/
-BUTTON_HAL_BUTTONS(&reed_relay, &key_left, &key_right);
+BUTTON_HAL_BUTTONS(&hall_relay);
 /*---------------------------------------------------------------------------*/
 /** @} */
