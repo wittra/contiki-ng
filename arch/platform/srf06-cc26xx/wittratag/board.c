@@ -68,8 +68,8 @@ static void
 shutdown_handler(uint8_t mode)
 {
   if(mode == LPM_MODE_SHUTDOWN) {
-    //SENSORS_DEACTIVATE(mpu_9250_wakeup_sensor);
-    //ti_lib_gpio_clear_dio(BOARD_IOID_MPU_POWER);
+    SENSORS_DEACTIVATE(bmg_250_sensor);
+    ti_lib_gpio_clear_dio(BOARD_IOID_GYRO_POWER);
   }
 
   /* In all cases, stop the I2C */

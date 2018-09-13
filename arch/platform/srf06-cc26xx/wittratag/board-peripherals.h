@@ -48,7 +48,7 @@
 #ifndef BOARD_PERIPHERALS_H_
 #define BOARD_PERIPHERALS_H_
 /*---------------------------------------------------------------------------*/
-//#include "mpu-9250-wakeup-sensor.h"
+#include "bmg-250-sensor.h"
 #include "ext-flash.h"
 /*---------------------------------------------------------------------------*/
 #endif /* BOARD_PERIPHERALS_H_ */

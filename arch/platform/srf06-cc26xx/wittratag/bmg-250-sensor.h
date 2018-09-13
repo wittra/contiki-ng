@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Nidatech AB
+ * Copyright (c) 2018, Nidatech AB - http://www.wittra.com/
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,25 @@
  * \addtogroup wittratag-cc26xx-peripherals
  * @{
  *
+ * \defgroup wittratag-cc26xx-bmg-sensor WittraTag 2.0 TI BMG250 Sensor
+
+
+ * @{
+ *
  * \file
- * Generic module controlling sensors on Wittratags
+ * Header file for the Wittratag Bosch BMG250 sensor
  */
 /*---------------------------------------------------------------------------*/
-#include "contiki.h"
+#ifndef BMG_250_SENSOR_H
+#define BMG_250_SENSOR_H
+/*---------------------------------------------------------------------------*/
 #include "lib/sensors.h"
-#include "wittratag/bmg-250-sensor.h"
-
-#include <string.h>
 /*---------------------------------------------------------------------------*/
-/** \brief Exports a global symbol to be used by the sensor API */
-SENSORS(&bmg_250_sensor);
+extern const struct sensors_sensor bmg_250_sensor;
 /*---------------------------------------------------------------------------*/
-/** @} */
+#endif /* BMG_250_SENSOR_H */
+/*---------------------------------------------------------------------------*/
+/**
+ * @}
+ * @}
+ */
