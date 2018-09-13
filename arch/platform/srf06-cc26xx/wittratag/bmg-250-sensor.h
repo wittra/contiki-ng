@@ -46,6 +46,26 @@
 /*---------------------------------------------------------------------------*/
 #include "lib/sensors.h"
 /*---------------------------------------------------------------------------*/
+/* ACC / Gyro Axes */
+#define BMG_250_SENSOR_TYPE_GYRO_Z   0x01
+#define BMG_250_SENSOR_TYPE_GYRO_Y   0x02
+#define BMG_250_SENSOR_TYPE_GYRO_X   0x04
+#define BMG_250_SENSOR_TYPE_GYRO_ALL 0x07
+/*---------------------------------------------------------------------------*/
+/* Gyro range */
+#define BMG_250_SENSOR_GYRO_RANGE_2000 0
+#define BMG_250_SENSOR_GYRO_RANGE_1000 1
+#define BMG_250_SENSOR_GYRO_RANGE_500  2
+#define BMG_250_SENSOR_GYRO_RANGE_250  3
+#define BMG_250_SENSOR_GYRO_RANGE_125  4
+/*---------------------------------------------------------------------------*/
+/* Gyro range configuration */
+#ifdef BMG_250_SENSOR_CONF_GYRO_RANGE
+#define BMG_250_SENSOR_GYRO_RANGE BMG_250_SENSOR_CONF_GYRO_RANGE
+#else
+#define BMG_250_SENSOR_GYRO_RANGE BMG_250_SENSOR_GYRO_RANGE_125
+#endif
+/*---------------------------------------------------------------------------*/
 extern const struct sensors_sensor bmg_250_sensor;
 /*---------------------------------------------------------------------------*/
 #endif /* BMG_250_SENSOR_H */
