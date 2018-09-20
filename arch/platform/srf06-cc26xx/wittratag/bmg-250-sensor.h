@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Nidatech AB
+ * Copyright (c) 2018, Nidatech AB - http://www.wittra.com/
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,45 @@
  * \addtogroup wittratag-cc26xx-peripherals
  * @{
  *
+ * \defgroup wittratag-cc26xx-bmg-sensor WittraTag 2.0 TI BMG250 Sensor
+
+
+ * @{
+ *
  * \file
- * Generic module controlling sensors on Wittratags
+ * Header file for the Wittratag Bosch BMG250 sensor
  */
 /*---------------------------------------------------------------------------*/
-#include "contiki.h"
+#ifndef BMG_250_SENSOR_H
+#define BMG_250_SENSOR_H
+/*---------------------------------------------------------------------------*/
 #include "lib/sensors.h"
-#include "wittratag/bmg-250-sensor.h"
-
-#include <string.h>
 /*---------------------------------------------------------------------------*/
-/** \brief Exports a global symbol to be used by the sensor API */
-SENSORS(&bmg_250_sensor);
+/* ACC / Gyro Axes */
+#define BMG_250_SENSOR_TYPE_GYRO_Z   0x01
+#define BMG_250_SENSOR_TYPE_GYRO_Y   0x02
+#define BMG_250_SENSOR_TYPE_GYRO_X   0x04
+#define BMG_250_SENSOR_TYPE_GYRO_ALL 0x07
 /*---------------------------------------------------------------------------*/
-/** @} */
+/* Gyro range */
+#define BMG_250_SENSOR_GYRO_RANGE_2000 0
+#define BMG_250_SENSOR_GYRO_RANGE_1000 1
+#define BMG_250_SENSOR_GYRO_RANGE_500  2
+#define BMG_250_SENSOR_GYRO_RANGE_250  3
+#define BMG_250_SENSOR_GYRO_RANGE_125  4
+/*---------------------------------------------------------------------------*/
+/* Gyro range configuration */
+#ifdef BMG_250_SENSOR_CONF_GYRO_RANGE
+#define BMG_250_SENSOR_GYRO_RANGE BMG_250_SENSOR_CONF_GYRO_RANGE
+#else
+#define BMG_250_SENSOR_GYRO_RANGE BMG_250_SENSOR_GYRO_RANGE_125
+#endif
+/*---------------------------------------------------------------------------*/
+extern const struct sensors_sensor bmg_250_sensor;
+/*---------------------------------------------------------------------------*/
+#endif /* BMG_250_SENSOR_H */
+/*---------------------------------------------------------------------------*/
+/**
+ * @}
+ * @}
+ */
