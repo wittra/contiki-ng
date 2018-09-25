@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (c) 2018, Nidatech AB - http://www.wittra.com/
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,31 +28,41 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /*---------------------------------------------------------------------------*/
-/** \addtogroup cc26xx-srf-tag
+/**
+ * \addtogroup wittratag-cc26xx-peripherals
  * @{
  *
- * \defgroup wittratag-cc26xx-peripherals Wittratag CC1350/CC2650 common
- *
- * Defines related to Wittratag sensors. The two sensortags are identical to a
- * very large extent. Everything documented within this group applies to both
- * sensortags.
- *
+ * \defgroup wittratag-cc26xx-lsm303ah-sensor WittraTag 2.0 LSM303AH Sensor
+
+
  * @{
  *
  * \file
- * Header file with definitions related to the sensors on the Sensortags
- *
- * \note   Do not include this file directly.
+ * Header file for the Wittratag LSM303AH sensor, both accelerometer and magnetometer.
  */
 /*---------------------------------------------------------------------------*/
-#ifndef BOARD_PERIPHERALS_H_
-#define BOARD_PERIPHERALS_H_
+#ifndef LSM_303_AH_SENSOR_H
+#define LSM_303_AH_SENSOR_H
 /*---------------------------------------------------------------------------*/
-#include "bmg-250-sensor.h"
-#include "lsm-303-ah-sensor.h"
-#include "ext-flash.h"
+#include "lib/sensors.h"
 /*---------------------------------------------------------------------------*/
-#endif /* BOARD_PERIPHERALS_H_ */
+/* Accelerometer Axes */
+#define LSM_303_AH_SENSOR_TYPE_ACC_Z   0x01
+#define LSM_303_AH_SENSOR_TYPE_ACC_Y   0x02
+#define LSM_303_AH_SENSOR_TYPE_ACC_X   0x04
+#define LSM_303_AH_SENSOR_TYPE_ACC_ALL 0x07
+#define LSM_303_AH_SENSOR_TYPE_TMP     0x08
+/*---------------------------------------------------------------------------*/
+/* Magnetometer Axes */
+#define LSM_303_AH_SENSOR_TYPE_MAG_Z   0x01
+#define LSM_303_AH_SENSOR_TYPE_MAG_Y   0x02
+#define LSM_303_AH_SENSOR_TYPE_MAG_X   0x04
+#define LSM_303_AH_SENSOR_TYPE_MAG_ALL 0x07
+/*---------------------------------------------------------------------------*/
+extern const struct sensors_sensor lsm_303_ah_acc_sensor;
+extern const struct sensors_sensor lsm_303_ah_mag_sensor;
+/*---------------------------------------------------------------------------*/
+#endif /* LSM_303_AH_SENSOR_H */
 /*---------------------------------------------------------------------------*/
 /**
  * @}
