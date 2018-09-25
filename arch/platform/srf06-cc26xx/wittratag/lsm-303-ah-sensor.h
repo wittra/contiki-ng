@@ -51,6 +51,7 @@
 #define LSM_303_AH_SENSOR_TYPE_ACC_Y   0x02
 #define LSM_303_AH_SENSOR_TYPE_ACC_X   0x04
 #define LSM_303_AH_SENSOR_TYPE_ACC_ALL 0x07
+#define LSM_303_AH_SENSOR_TYPE_TMP     0x08
 /*---------------------------------------------------------------------------*/
 /* Magnetometer Axes */
 #define LSM_303_AH_SENSOR_TYPE_MAG_Z   0x01

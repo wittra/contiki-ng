@@ -220,6 +220,24 @@ acc_read(int16_t *data)
 }
 /*---------------------------------------------------------------------------*/
 /**
+ * \brief Returns temperature reading from the sensor
+ * \return centi-G (ACC) or centi-Deg/Sec (Gyro)
+ */
+static bool
+read_tmp(uint8_t *tmp)
+{
+  bool success = false;
+
+  SENSOR_SELECT();
+  success = sensor_common_read_reg(OUT_T_A, tmp, 1);
+  SENSOR_DESELECT();
+
+  *tmp += TEMPERATURE_SENSOR_OFFSET; /* Offset compensation */
+
+  return success;
+}
+/*---------------------------------------------------------------------------*/
+/**
  * \brief Returns a reading from the sensor
  * \param type LSM_303_AH_SENSOR_TYPE_ACC_[XYZ]
  * \return centi-G (ACC) or centi-Deg/Sec (Gyro)
@@ -236,6 +254,15 @@ value(int type)
   }
 
   memset(sensor_value, 0, sizeof(sensor_value));
+
+  if(type == LSM_303_AH_SENSOR_TYPE_TMP) {
+    uint8_t tmp = 0;
+    success = read_tmp(&tmp);
+    if(success) {
+      return tmp;
+    }
+    return INT_MIN;
+  }
 
   success = acc_read(sensor_value);
 
