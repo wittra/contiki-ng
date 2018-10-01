@@ -13,6 +13,7 @@ MODULES_REL += webserver
 include $(CONTIKI)/Makefile.identify-target
 MODULES_REL += $(TARGET)
 
-MAKE_MAC = MAKE_MAC_TSCH
+# Uncomment this to build rpl-border-router for 6-TSCH
+#MAKE_MAC = MAKE_MAC_TSCH
 
 include $(CONTIKI)/Makefile.include

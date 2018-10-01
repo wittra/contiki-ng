@@ -46,9 +46,10 @@
 /*******************************************************/
 /******************* Configure TSCH ********************/
 /*******************************************************/
-
 /* IEEE802.15.4 PANID */
 #define IEEE802154_CONF_PANID 0x81a5
+
+#if MAC_CONF_WITH_TSCH
 
 /* Do not start TSCH at init, wait for NETSTACK_MAC.on() */
 #define TSCH_CONF_AUTOSTART 1
@@ -62,5 +63,7 @@
 #define TSCH_CONF_RX_WAIT                  1200
 /* The data rate is 50 kbps = 6250 bytes per second. */
 #define TSCH_CONF_BYTE_DURATION_US (1000000 / 6250)
+
+#endif /* MAC_CONF_WITH_TSCH */
 
 #endif /* PROJECT_CONF_H_ */
