@@ -239,7 +239,7 @@
 #define MPU_MOVEMENT      0x40
 /*---------------------------------------------------------------------------*/
 /* Sensor selection/deselection */
-#define SENSOR_SELECT()     board_i2c_select(BOARD_I2C_INTERFACE_1, SENSOR_I2C_ADDRESS)
+#define SENSOR_SELECT()     board_i2c_select(BOARD_I2C_INTERFACE_0, SENSOR_I2C_ADDRESS)
 #define SENSOR_DESELECT()   board_i2c_deselect()
 /*---------------------------------------------------------------------------*/
 /* Delay */
