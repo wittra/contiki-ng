@@ -63,14 +63,23 @@
 /* Registers */
 #define WHO_AM_I_A         0x0f
 #define CTRL1_A            0x20
+#define CTRL2_A            0x21
+#define CTRL3_A            0x22
+#define CTRL4_A            0x23
+#define CTRL5_A            0x24
 #define OUT_T_A            0x26
 #define STATUS_A           0x27
 #define OUT_X_L_A          0x28
 #define OUT_X_H_A          0x29
-#define OUT_Y_L_A          0x2A
-#define OUT_Y_H_A          0x2B
-#define OUT_Z_L_A          0x2C
-#define OUT_Z_H_A          0x2D
+#define OUT_Y_L_A          0x2a
+#define OUT_Y_H_A          0x2b
+#define OUT_Z_L_A          0x2c
+#define OUT_Z_H_A          0x2d
+#define WAKEUP_SRC_A       0x37
+#define TAP_SRC_A          0x38
+#define SIXD_SRC_A         0x39
+#define FUNC_CK_GATE_A     0x3d
+#define FUNC_CTRL_A        0x3f
 /*---------------------------------------------------------------------------*/
 /* Control register 1 bits */
 /* Power modes, only LP defined */
@@ -89,10 +98,55 @@
 #define FULL_SCALE_4G      0x02
 #define FULL_SCALE_8G      0x03
 /*---------------------------------------------------------------------------*/
+/* Control register 2 bits */
+#define SOFT_RESET         (1 << 6)
+#define FUNC_CFG_EN        (1 << 4)
+#define IF_ADD_INC         (1 << 2)
+/*---------------------------------------------------------------------------*/
+/* Control register 3 bits */
+#define TAP_X_EN           (1 << 5)
+#define TAP_Y_EN           (1 << 4)
+#define TAP_Z_EN           (1 << 3)
+#define LIR                (1 << 2)
+#define H_LACTIVE          (1 << 1)
+#define PP_OD              (1 << 0)
+/*---------------------------------------------------------------------------*/
+/* Control register 4 bits */
+#define INT1_S_TAP         (1 << 6)
+#define INT1_FF            (1 << 4)
+#define INT1_TAP           (1 << 3)
+#define INT1_6D            (1 << 2)
+/*---------------------------------------------------------------------------*/
+/* Control register 5 bits */
+#define DRDY_PULSED        (1 << 7)
+#define INT2_BOOT          (1 << 6)
+#define INT2_ON_INT1       (1 << 5)
+#define INT2_TILT          (1 << 4)
+#define INT2_SIG_MOT       (1 << 3)
+#define INT2_STEP          (1 << 2)
+#define INT2_FTH           (1 << 1)
+#define INT2_DRDY          (1 << 0)
+/*---------------------------------------------------------------------------*/
 #define TEMPERATURE_SENSOR_OFFSET 25
+/*---------------------------------------------------------------------------*/
+/* FUNC_CK_GATE_A register bits */
+#define TILT_INT           (1 << 7)
+#define FS_SRC_1           (1 << 6)
+#define FS_SRC_0           (1 << 5)
+#define SIG_MOT_DETECT     (1 << 4)
+#define RST_SIGN_MOT       (1 << 3)
+#define RST_PEDO           (1 << 2)
+#define STEP_DETECT        (1 << 1)
+#define CK_GATE_FUNC       (1 << 0)
 /*---------------------------------------------------------------------------*/
 /* Status register bits */
 #define STATUS_DRDY        0x01
+/*---------------------------------------------------------------------------*/
+/* Function control register bits */
+#define MODULE_ON          (1 << 5)
+#define TILT_ON            (1 << 4)
+#define SIGN_MOT_ON        (1 << 1)
+#define STEP_CNT_ON        (1 << 0)
 /*---------------------------------------------------------------------------*/
 /* Sensor selection/deselection */
 #define SENSOR_SELECT()     board_i2c_select(BOARD_I2C_INTERFACE_0, SENSOR_I2C_ADDRESS)
