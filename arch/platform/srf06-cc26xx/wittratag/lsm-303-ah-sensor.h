@@ -33,8 +33,6 @@
  * @{
  *
  * \defgroup wittratag-cc26xx-lsm303ah-sensor WittraTag 2.0 LSM303AH Sensor
-
-
  * @{
  *
  * \file
@@ -60,6 +58,7 @@
 #define LSM_303_AH_SENSOR_TYPE_MAG_ALL 0x07
 /*---------------------------------------------------------------------------*/
 extern const struct sensors_sensor lsm_303_ah_acc_sensor;
+extern const struct sensors_sensor lsm_303_ah_mot_sensor;
 extern const struct sensors_sensor lsm_303_ah_mag_sensor;
 /*---------------------------------------------------------------------------*/
 #endif /* LSM_303_AH_SENSOR_H */

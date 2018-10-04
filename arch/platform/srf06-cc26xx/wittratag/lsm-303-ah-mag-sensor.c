@@ -115,8 +115,6 @@ rtimer_clock_t t0;
 #define SENSOR_STATE_ENABLED      3
 /*---------------------------------------------------------------------------*/
 static int state = SENSOR_STATE_DISABLED;
-/*---------------------------------------------------------------------------*/
-const static gpio_hal_pin_t acc_int_pin = BOARD_IOID_ACC_INT;
 /* ------------------------------------------------------------------------- */
 /* 3 16-byte words for all sensor readings */
 #define SENSOR_DATA_BUF_SIZE   3
@@ -285,7 +283,6 @@ configure(int type, int enable)
       PRINTF("Chip id:0x%2.2x (%s)\n", chipid, success?"SUCCESS":"FAIL");
     }
 #endif
-    gpio_hal_arch_pin_set_input(acc_int_pin);
     state = SENSOR_STATE_INITIALISED;
     break;
   case SENSORS_ACTIVE:
