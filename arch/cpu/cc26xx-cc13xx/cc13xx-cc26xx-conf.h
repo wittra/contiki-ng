@@ -79,15 +79,25 @@
 #endif /* CPU_FAMILY_CC13XX */
 
 #if CC13XX_CONF_PROP_MODE
+#ifndef NETSTACK_CONF_RADIO
 #define NETSTACK_CONF_RADIO        prop_mode_driver
+#endif
 
 #ifndef RF_CORE_CONF_CHANNEL
 #define RF_CORE_CONF_CHANNEL                      0
 #endif
 
+#ifndef CSMA_CONF_ACK_WAIT_TIME
 #define CSMA_CONF_ACK_WAIT_TIME                (RTIMER_SECOND / 400)
+#endif /* CSMA_CONF_ACK_WAIT_TIME */
+
+#ifndef CSMA_CONF_AFTER_ACK_DETECTED_WAIT_TIME
 #define CSMA_CONF_AFTER_ACK_DETECTED_WAIT_TIME (RTIMER_SECOND / 1000)
+#endif /* CSMA_CONF_AFTER_ACK_DETECTED_WAIT_TIME */
+
+#ifndef CSMA_CONF_SEND_SOFT_ACK
 #define CSMA_CONF_SEND_SOFT_ACK              1
+#endif /* CSMA_CONF_SEND_SOFT_ACK */
 
 #else /* CC13XX_CONF_PROP_MODE */
 #ifndef NETSTACK_CONF_RADIO
@@ -197,7 +207,29 @@
  * @{
  */
 #ifndef ROM_BOOTLOADER_ENABLE
-#define ROM_BOOTLOADER_ENABLE              0
+#define ROM_BOOTLOADER_ENABLE              0//1
+#endif
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \name Internal flash configuration
+ *
+ * Controls the start offset and length of the flash area available for the
+ * firmware image. You will normally not have to change this.
+ * @{
+ */
+#ifndef FLASH_FW_ORIGIN
+/**
+ * \brief Start address on flash available for firmware
+ */
+#define FLASH_FW_ORIGIN            0x00000000
+#endif
+
+#ifndef FLASH_FW_LENGTH
+/**
+ * \brief Length of the flash area that is available for firmware
+ */
+#define FLASH_FW_LENGTH            0x0001FFA8
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/
