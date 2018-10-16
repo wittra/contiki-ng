@@ -75,6 +75,10 @@
 #define OUT_Y_H_A          0x2b
 #define OUT_Z_L_A          0x2c
 #define OUT_Z_H_A          0x2d
+#define TAP_6D_THS_A       0x31
+#define INT_DUR_A          0x32
+#define WAKE_UP_THS_A      0x33
+#define STATUS_DUP_A       0x36
 #define WAKEUP_SRC_A       0x37
 #define TAP_SRC_A          0x38
 #define SIXD_SRC_A         0x39
@@ -82,7 +86,7 @@
 #define FUNC_CTRL_A        0x3f
 /*---------------------------------------------------------------------------*/
 /* Control register 1 bits */
-/* Power modes, only LP defined */
+/* Power modes */
 #define POWER_MODE_PD      0x00
 #define POWER_MODE_LP_1    0x08
 #define POWER_MODE_LP_12_5 0x09
@@ -92,6 +96,13 @@
 #define POWER_MODE_LP_200  0x0d
 #define POWER_MODE_LP_400  0x0e
 #define POWER_MODE_LP_800  0x0f
+#define POWER_MODE_HR_12_5 0x01
+#define POWER_MODE_HR_25   0x02
+#define POWER_MODE_HR_50   0x03
+#define POWER_MODE_HR_100  0x04
+#define POWER_MODE_HR_200  0x05
+#define POWER_MODE_HR_400  0x06
+#define POWER_MODE_HR_800  0x07
 /* Full scale selection */
 #define FULL_SCALE_2G      0x00
 #define FULL_SCALE_16G     0x01
@@ -167,6 +178,7 @@ rtimer_clock_t t0;
 #define SENSOR_STATE_ENABLED      3
 /*---------------------------------------------------------------------------*/
 static int state = SENSOR_STATE_DISABLED;
+static int mot_state = SENSOR_STATE_DISABLED;
 /*---------------------------------------------------------------------------*/
 const static gpio_hal_pin_t acc_int_pin = BOARD_IOID_ACC_INT;
 /* ------------------------------------------------------------------------- */
@@ -206,7 +218,8 @@ static bool
 sensor_wakeup(void)
 {
   bool success = false;
-  uint8_t write_seq[] = {CTRL1_A, (POWER_MODE_LP_100 << 4) | (FULL_SCALE_4G << 2)};
+  uint8_t write_seq[] = {CTRL1_A,
+                         (POWER_MODE_LP_50 << 4) | (FULL_SCALE_2G << 2)};
 
   SENSOR_SELECT();
   success = board_i2c_write(write_seq, sizeof(write_seq));
@@ -235,6 +248,46 @@ power_up(void)
   }
 }
 /*---------------------------------------------------------------------------*/
+static bool
+mot_sensor_wakeup(void)
+{
+  bool success = false;
+
+  SENSOR_SELECT();
+  {
+    uint8_t write_seq[] = { TAP_6D_THS_A, 0x40 };
+    success = board_i2c_write(write_seq, sizeof(write_seq));
+  }
+  {
+    uint8_t write_seq[] = { CTRL3_A, LIR | H_LACTIVE };
+    success &= board_i2c_write(write_seq, sizeof(write_seq));
+  }
+  SENSOR_DESELECT();
+  return success;
+}
+/*---------------------------------------------------------------------------*/
+static bool
+mot_sensor_enable(void)
+{
+  bool success = false;
+  uint8_t write_seq[] = { CTRL4_A, INT1_6D };
+  SENSOR_SELECT();
+  success = board_i2c_write(write_seq, sizeof(write_seq));
+  SENSOR_DESELECT();
+  return success;
+}
+/*---------------------------------------------------------------------------*/
+static bool
+mot_sensor_disable(void)
+{
+  bool success = false;
+  uint8_t write_seq[] = { CTRL4_A, 0 };
+  SENSOR_SELECT();
+  success = board_i2c_write(write_seq, sizeof(write_seq));
+  SENSOR_DESELECT();
+  return success;
+}
+/*---------------------------------------------------------------------------*/
 /**
  * \brief Check if data is ready to be read.
  * \return Return true if there is data to be read.
@@ -243,11 +296,34 @@ static bool
 data_ready(void)
 {
   bool success = false;
-  uint8_t status;
+  uint8_t status = 0;
   SENSOR_SELECT();
   success = sensor_common_read_reg(STATUS_A, &status, 1);
   SENSOR_DESELECT();
   return success && (status & STATUS_DRDY);
+}
+/*---------------------------------------------------------------------------*/
+/**
+ * \brief Clear interrupt by reading interrupt status registers
+ * \return Return false if clearing fails.
+ */
+static bool
+clear_interrupt(void)
+{
+  bool success = false;
+  uint8_t answer[4] = { 0 };
+
+  SENSOR_SELECT();
+  success = sensor_common_read_reg(STATUS_DUP_A, answer, 4);
+  SENSOR_DESELECT();
+#if DEBUG
+  printf("SR:");
+  for (int i = 0; i < 4; i++) {
+    printf("0x%2.2x ", answer[i]);
+  }
+  printf("\n");
+#endif
+  return success;
 }
 /*---------------------------------------------------------------------------*/
 static bool
@@ -340,6 +416,24 @@ value(int type)
 }
 /*---------------------------------------------------------------------------*/
 /**
+ * \brief Handler for WittraTag-CC1350 LSM303AH interrupts
+ */
+static void
+lsm_interrupt_handler(gpio_hal_pin_mask_t pin_mask)
+{
+  if(clear_interrupt()) {
+    sensors_changed(&lsm_303_ah_mot_sensor);
+  }
+}
+/*---------------------------------------------------------------------------*/
+/* Event handler definitions for LSM Significant motion. */
+static gpio_hal_event_handler_t lsm_motion_event_handler = {
+  .handler = lsm_interrupt_handler,
+  .pin_mask = gpio_hal_pin_to_mask(BOARD_IOID_ACC_INT),
+};
+static bool int_handler_registered = false;
+/*---------------------------------------------------------------------------*/
+/**
  * \brief Configuration function for the LSM303AH sensor.
  *
  * \param type Activate, enable or disable the sensor. See below
@@ -362,7 +456,6 @@ configure(int type, int enable)
       PRINTF("Chip id:0x%2.2x (%s)\n", chipid, success?"SUCCESS":"FAIL");
     }
 #endif
-    gpio_hal_arch_pin_set_input(acc_int_pin);
     state = SENSOR_STATE_INITIALISED;
     break;
   case SENSORS_ACTIVE:
@@ -383,6 +476,49 @@ configure(int type, int enable)
 }
 /*---------------------------------------------------------------------------*/
 static int
+configure_mot(int type, int enable)
+{
+  switch(type) {
+  case SENSORS_HW_INIT:
+    PRINTF("LSM Mot: HW Init\n");
+    mot_sensor_wakeup();
+    gpio_hal_arch_pin_set_input(acc_int_pin);
+    gpio_hal_arch_pin_cfg_set(acc_int_pin,
+                              GPIO_HAL_PIN_CFG_PULL_UP |
+                              GPIO_HAL_PIN_CFG_INT_ENABLE |
+                              GPIO_HAL_PIN_CFG_EDGE_FALLING);
+
+    mot_state = SENSOR_STATE_INITIALISED;
+    break;
+  case SENSORS_ACTIVE:
+    if(!int_handler_registered) {
+      PRINTF("LSM Mot: Registring\n");
+      /* Register interrupt vector */
+      gpio_hal_register_handler(&lsm_motion_event_handler);
+      gpio_hal_arch_interrupt_disable(acc_int_pin);
+      int_handler_registered = true;
+    }
+    if(enable) {
+      PRINTF("LSM Mot: Enabling\n");
+      if(mot_state != SENSOR_STATE_ENABLED) {
+        mot_sensor_enable();
+        clear_interrupt(); /* Clear interrupt before enabling */
+        gpio_hal_arch_interrupt_enable(acc_int_pin);
+        mot_state = SENSOR_STATE_ENABLED;
+      }
+    } else {
+      PRINTF("LSM Mot: Disabling\n");
+      gpio_hal_arch_interrupt_disable(acc_int_pin);
+      mot_sensor_disable();
+      mot_state = SENSOR_STATE_DISABLED;
+    }
+  default:
+    break;
+  }
+  return state;
+}
+/*---------------------------------------------------------------------------*/
+static int
 status(int type)
 {
   switch(type) {
@@ -394,8 +530,21 @@ status(int type)
   }
   return SENSOR_STATE_DISABLED;
 }
-
+/*---------------------------------------------------------------------------*/
+static int
+mot_status(int type)
+{
+  switch(type) {
+  case SENSORS_ACTIVE:
+  case SENSORS_READY:
+    return gpio_hal_arch_read_pin(acc_int_pin);
+  default:
+    break;
+  }
+  return SENSOR_STATE_DISABLED;
+}
 /*---------------------------------------------------------------------------*/
 SENSORS_SENSOR(lsm_303_ah_acc_sensor, "LSM303AH Acc", value, configure, status);
+SENSORS_SENSOR(lsm_303_ah_mot_sensor, "LSM303AH Mot", NULL, configure_mot, mot_status);
 /*---------------------------------------------------------------------------*/
 /** @} */

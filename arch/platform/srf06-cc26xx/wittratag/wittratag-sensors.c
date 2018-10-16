@@ -44,6 +44,7 @@
 #include <string.h>
 /*---------------------------------------------------------------------------*/
 /** \brief Exports a global symbol to be used by the sensor API */
-SENSORS(&bmg_250_sensor, &lsm_303_ah_acc_sensor, &lsm_303_ah_mag_sensor);
+SENSORS(&bmg_250_sensor, &lsm_303_ah_acc_sensor, &lsm_303_ah_mot_sensor,
+        &lsm_303_ah_mag_sensor);
 /*---------------------------------------------------------------------------*/
 /** @} */
