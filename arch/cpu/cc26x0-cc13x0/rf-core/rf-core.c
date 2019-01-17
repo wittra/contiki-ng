@@ -734,7 +734,11 @@ cc26xx_rf_cpe1_isr(void)
     /* set a flag that the buffer is full*/
     rf_core_rx_is_full = true;
     /* make sure read_frame() will be called to make space in RX buffer */
-    process_poll(&rf_core_process);
+    // Possible fix to issue #778
+    // See: "EDIT: a possible solution - but probably not complete"
+    // https://github.com/contiki-ng/contiki-ng/issues/778
+    //process_poll(&rf_core_process);
+    release_data_entry();
     /* Clear the IRQ_RX_BUF_FULL interrupt flag by writing zero to bit */
     HWREG(RFC_DBELL_NONBUF_BASE + RFC_DBELL_O_RFCPEIFG) = ~(IRQ_RX_BUF_FULL);
   }

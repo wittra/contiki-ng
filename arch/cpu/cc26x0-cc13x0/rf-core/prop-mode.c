@@ -250,7 +250,11 @@ rf_is_on(void)
     return 0;
   }
 
-  return smartrf_settings_cmd_prop_rx_adv.status == RF_CORE_RADIO_OP_STATUS_ACTIVE;
+  // Possible fix to issue #778
+  // See: "EDIT: a possible solution - but probably not complete"
+  // https://github.com/contiki-ng/contiki-ng/issues/778
+  //return smartrf_settings_cmd_prop_rx_adv.status == RF_CORE_RADIO_OP_STATUS_ACTIVE;
+  return ( (smartrf_settings_cmd_prop_rx_adv.status == RF_CORE_RADIO_OP_STATUS_ACTIVE) || (smartrf_settings_cmd_prop_rx_adv.status == RF_CORE_RADIO_OP_STATUS_PROP_ERROR_RXBUF ) );
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t
@@ -482,7 +486,11 @@ rx_on_prop(void)
 {
   int ret;
 
-  if(rf_is_on()) {
+  // Possible fix to issue #778
+  // See: "EDIT: a possible solution - but probably not complete"
+  // https://github.com/contiki-ng/contiki-ng/issues/778
+  //if(rf_is_on()) {
+  if(rf_is_on() && !(smartrf_settings_cmd_prop_rx_adv.status == RF_CORE_RADIO_OP_STATUS_PROP_ERROR_RXBUF ) ) {
     PRINTF("rx_on_prop: We were on. PD=%u, RX=0x%04x\n",
            rf_core_is_accessible(), smartrf_settings_cmd_prop_rx_adv.status);
     return RF_CORE_CMD_OK;
@@ -784,7 +792,11 @@ send(const void *payload, unsigned short payload_len)
   return transmit(payload_len);
 }
 /*---------------------------------------------------------------------------*/
-static void
+// Possible fix to issue #778
+// See: "EDIT: a possible solution - but probably not complete"
+// https://github.com/contiki-ng/contiki-ng/issues/778
+//static void
+extern void
 release_data_entry(void)
 {
   rfc_dataEntryGeneral_t *entry = (rfc_dataEntryGeneral_t *)rx_read_entry;
