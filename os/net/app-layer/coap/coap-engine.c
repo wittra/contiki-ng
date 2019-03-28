@@ -310,12 +310,14 @@ coap_receive(const coap_endpoint_t *src,
       const coap_endpoint_t *ep;
       if(message->type == COAP_TYPE_ACK && message->code == 0) {
         LOG_DBG("Got empty ACK. Waiting for separate response\n");
+#if 0
         if((transaction = coap_get_transaction_by_mid(message->mid))) {
           LOG_DBG("Stopping transaction retrans_timer\n");
           coap_timer_stop(&transaction->retrans_timer);
         } else {
           LOG_ERR("Couldn't find transaction matching MID: %"PRIu16"\n", message->mid);
         }
+#endif
       } else if((ep = coap_get_src_endpoint(message))) {
         if((transaction = coap_get_transaction_by_token_and_endpoint(message->token, message->token_len, ep))) {
           /* free transaction memory before callback, as it may create a new transaction */
