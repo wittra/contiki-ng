@@ -66,6 +66,7 @@ typedef struct coap_transaction {
   coap_timer_t retrans_timer;
   uint32_t retrans_interval;
   uint8_t retrans_counter;
+  bool acked;
 
   coap_endpoint_t endpoint;
 

@@ -69,7 +69,14 @@ coap_retransmit_transaction(coap_timer_t *nt)
     return;
   }
   ++(t->retrans_counter);
-  LOG_DBG("Retransmitting %u (%u)\n", t->mid, t->retrans_counter);
+  if (t->acked) {
+    LOG_DBG("Waiting on response ");
+    for(uint8_t i = 0; i < t->token_len; ++i)
+      LOG_DBG_("%"PRIx8, t->token[i]);
+    LOG_DBG_(" (%u)\n", t->retrans_counter);
+  } else {
+    LOG_DBG("Retransmitting %u (%u)\n", t->mid, t->retrans_counter);
+  }
   coap_send_transaction(t);
 }
 /*---------------------------------------------------------------------------*/
@@ -87,6 +94,7 @@ coap_new_transaction(uint16_t mid, const uint8_t *token, uint8_t token_len, cons
     memcpy(t->token, token, MIN(COAP_TOKEN_LEN, token_len));
     t->token_len = token_len;
     t->retrans_counter = 0;
+    t->acked = false;
 
     /* save client address */
     coap_endpoint_copy(&t->endpoint, endpoint);
@@ -106,7 +114,9 @@ coap_send_transaction(coap_transaction_t *t)
      ((COAP_HEADER_TYPE_MASK & t->message[0]) >> COAP_HEADER_TYPE_POSITION)) {
     if(t->retrans_counter <= COAP_MAX_RETRANSMIT) {
       /* not timed out yet */
-      coap_sendto(&t->endpoint, t->message, t->message_len);
+      if(!t->acked) {
+        coap_sendto(&t->endpoint, t->message, t->message_len);
+      }
       LOG_DBG("Keeping transaction %u\n", t->mid);
 
       if(t->retrans_counter == 0) {
