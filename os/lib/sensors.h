@@ -39,6 +39,7 @@
 #define SENSORS_HW_INIT 128 /* internal - used only for initialization */
 #define SENSORS_ACTIVE 129 /* ACTIVE => 0 -> turn off, 1 -> turn on */
 #define SENSORS_READY 130 /* read only */
+#define SENSORS_HW_PROBE 131 /* Used to check that the HW is not dead. */
 
 #define SENSORS_ACTIVATE(sensor) (sensor).configure(SENSORS_ACTIVE, 1)
 #define SENSORS_DEACTIVATE(sensor) (sensor).configure(SENSORS_ACTIVE, 0)
