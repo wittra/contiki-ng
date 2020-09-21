@@ -44,7 +44,6 @@
  * @{
  */
 
-
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -425,8 +424,8 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
   /* parse header fields */
   coap_pkt->version = (COAP_HEADER_VERSION_MASK & coap_pkt->buffer[0])
     >> COAP_HEADER_VERSION_POSITION;
-  coap_pkt->type = (COAP_HEADER_TYPE_MASK & coap_pkt->buffer[0])
-    >> COAP_HEADER_TYPE_POSITION;
+  coap_pkt->type = (coap_message_type_t)((COAP_HEADER_TYPE_MASK & coap_pkt->buffer[0])
+    >> COAP_HEADER_TYPE_POSITION);
   coap_pkt->token_len = (COAP_HEADER_TOKEN_LEN_MASK & coap_pkt->buffer[0])
     >> COAP_HEADER_TOKEN_LEN_POSITION;
   coap_pkt->code = coap_pkt->buffer[1];
@@ -522,16 +521,19 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
     coap_set_option(coap_pkt, option_number);
 
     switch(option_number) {
+
     case COAP_OPTION_CONTENT_FORMAT:
       coap_pkt->content_format = coap_parse_int_option(current_option,
                                                        option_length);
       LOG_DBG_("Content-Format [%u]\n", coap_pkt->content_format);
       break;
+
     case COAP_OPTION_MAX_AGE:
       coap_pkt->max_age = coap_parse_int_option(current_option,
                                                 option_length);
       LOG_DBG_("Max-Age [%"PRIu32"]\n", coap_pkt->max_age);
       break;
+
     case COAP_OPTION_ETAG:
       coap_pkt->etag_len = MIN(COAP_ETAG_LEN, option_length);
       memcpy(coap_pkt->etag, current_option, coap_pkt->etag_len);
@@ -541,10 +543,12 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
                coap_pkt->etag[5], coap_pkt->etag[6], coap_pkt->etag[7]
                );                 /*FIXME always prints 8 bytes */
       break;
+
     case COAP_OPTION_ACCEPT:
       coap_pkt->accept = coap_parse_int_option(current_option, option_length);
       LOG_DBG_("Accept [%u]\n", coap_pkt->accept);
       break;
+
     case COAP_OPTION_IF_MATCH:
       /* TODO support multiple ETags */
       coap_pkt->if_match_len = MIN(COAP_ETAG_LEN, option_length);
@@ -557,6 +561,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
                coap_pkt->if_match[7]
                ); /* FIXME always prints 8 bytes */
       break;
+
     case COAP_OPTION_IF_NONE_MATCH:
       coap_pkt->if_none_match = 1;
       LOG_DBG_("If-None-Match\n");
@@ -573,7 +578,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
 
       coap_error_message = "This is a constrained server (Contiki)";
       return PROXYING_NOT_SUPPORTED_5_05;
-      break;
+
     case COAP_OPTION_PROXY_SCHEME:
 #if COAP_PROXY_OPTION_PROCESSING
       coap_pkt->proxy_scheme = (char *)current_option;
@@ -584,7 +589,6 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
       LOG_DBG_("]\n");
       coap_error_message = "This is a constrained server (Contiki)";
       return PROXYING_NOT_SUPPORTED_5_05;
-      break;
 
     case COAP_OPTION_URI_HOST:
       coap_pkt->uri_host = (char *)current_option;
@@ -593,11 +597,13 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
       LOG_DBG_COAP_STRING(coap_pkt->uri_host, coap_pkt->uri_host_len);
       LOG_DBG_("]\n");
       break;
+
     case COAP_OPTION_URI_PORT:
       coap_pkt->uri_port = coap_parse_int_option(current_option,
                                                  option_length);
       LOG_DBG_("Uri-Port [%u]\n", coap_pkt->uri_port);
       break;
+
     case COAP_OPTION_URI_PATH:
       /* coap_merge_multi_option() operates in-place on the IPBUF, but final message field should be const string -> cast to string */
       coap_merge_multi_option((char **)&(coap_pkt->uri_path),
@@ -607,6 +613,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
       LOG_DBG_COAP_STRING(coap_pkt->uri_path, coap_pkt->uri_path_len);
       LOG_DBG_("]\n");
       break;
+
     case COAP_OPTION_URI_QUERY:
       /* coap_merge_multi_option() operates in-place on the IPBUF, but final message field should be const string -> cast to string */
       coap_merge_multi_option((char **)&(coap_pkt->uri_query),
@@ -627,6 +634,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
       LOG_DBG_COAP_STRING(coap_pkt->location_path, coap_pkt->location_path_len);
       LOG_DBG_("]\n");
       break;
+
     case COAP_OPTION_LOCATION_QUERY:
       /* coap_merge_multi_option() operates in-place on the IPBUF, but final message field should be const string -> cast to string */
       coap_merge_multi_option((char **)&(coap_pkt->location_query),
@@ -642,6 +650,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
                                                 option_length);
       LOG_DBG_("Observe [%"PRId32"]\n", coap_pkt->observe);
       break;
+
     case COAP_OPTION_BLOCK2:
       coap_pkt->block2_num = coap_parse_int_option(current_option,
                                                    option_length);
@@ -654,6 +663,7 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
                (unsigned long)coap_pkt->block2_num,
                coap_pkt->block2_more ? "+" : "", coap_pkt->block2_size);
       break;
+
     case COAP_OPTION_BLOCK1:
       coap_pkt->block1_num = coap_parse_int_option(current_option,
                                                    option_length);
@@ -666,14 +676,17 @@ coap_parse_message(coap_message_t *coap_pkt, uint8_t *data, uint16_t data_len)
                (unsigned long)coap_pkt->block1_num,
                coap_pkt->block1_more ? "+" : "", coap_pkt->block1_size);
       break;
+
     case COAP_OPTION_SIZE2:
       coap_pkt->size2 = coap_parse_int_option(current_option, option_length);
       LOG_DBG_("Size2 [%"PRIu32"]\n", coap_pkt->size2);
       break;
+
     case COAP_OPTION_SIZE1:
       coap_pkt->size1 = coap_parse_int_option(current_option, option_length);
       LOG_DBG_("Size1 [%"PRIu32"]\n", coap_pkt->size1);
       break;
+
     default:
       LOG_DBG_("unknown (%u)\n", option_number);
       /* check if critical (odd) */

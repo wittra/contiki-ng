@@ -120,7 +120,7 @@ call_service(coap_message_t *request, coap_message_t *response,
   if(status != COAP_HANDLER_STATUS_CONTINUE) {
     return status;
   }
-  status = invoke_coap_resource_service(request, response, buffer, buffer_size, offset);
+  status = (coap_handler_status_t)invoke_coap_resource_service(request, response, buffer, buffer_size, offset);
   if(status != COAP_HANDLER_STATUS_CONTINUE) {
     return status;
   }
@@ -379,7 +379,7 @@ coap_receive(const coap_endpoint_t *src,
     coap_clear_transaction(transaction);
 
     if(coap_status_code == PING_RESPONSE) {
-      coap_status_code = 0;
+      coap_status_code = NO_ERROR;
       reply_type = COAP_TYPE_RST;
     } else if(coap_status_code >= 192) {
       /* set to sendable error code */
