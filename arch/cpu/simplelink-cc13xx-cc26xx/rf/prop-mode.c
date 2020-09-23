@@ -202,6 +202,18 @@ static prop_radio_t prop_radio;
 #define v_cmd_tx            CC_ACCESS_NOW(rfc_CMD_PROP_TX_ADV_t,          rf_cmd_prop_tx_adv)
 #define v_cmd_rx            CC_ACCESS_NOW(rfc_CMD_PROP_RX_ADV_t,          rf_cmd_prop_rx_adv)
 /*---------------------------------------------------------------------------*/
+static uint8_t
+flip_bits(uint8_t byte) {
+  /* Flip all bits within a byte (0<->7, 1<->6 etc.) */
+  uint8_t i;
+  uint8_t r = 0;
+  for(i = 0; i < 4; i++) {
+    r |= (byte & (1 << i)) << (7 - 2 * i);
+    r |= (byte & (1 << (i + 4))) >> (1 + 2 * i);
+  }
+  return r;
+}
+/*---------------------------------------------------------------------------*/
 static inline bool
 tx_is_active(void)
 {
@@ -355,7 +367,13 @@ prepare(const void *payload, unsigned short payload_len)
     return RADIO_TX_ERR;
   }
 
-  memcpy(prop_radio.tx_buf + TX_BUF_HDR_LEN, payload, payload_len);
+
+  /* Flip bits in every byte of payload (see CC13x2 reference manual,
+   * section 25.10.5.2.1 IEEE 802.15.4g Packet Format) */
+  size_t i;
+  for(i = 0; i < payload_len; i++) {
+    prop_radio.tx_buf[TX_BUF_HDR_LEN + i] = flip_bits(((const uint8_t *)payload)[i]);
+  }
   return 0;
 }
 /*---------------------------------------------------------------------------*/
@@ -465,7 +483,12 @@ read(void *buf, unsigned short buf_len)
     return 0;
   }
 
-  memcpy(buf, payload_ptr, payload_len);
+  /* Flip bits in every byte of payload (see CC13x2 reference manual,
+   * section 25.10.5.2.1 IEEE 802.15.4g Packet Format) */
+  size_t i;
+  for(i = 0; i < payload_len; i++) {
+    ((uint8_t *)buf)[i] = flip_bits(payload_ptr[i]);
+  }
 
   /* RSSI stored after payload */
   const int8_t rssi = (int8_t)payload_ptr[payload_len];
