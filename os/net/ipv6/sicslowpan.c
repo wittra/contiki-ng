@@ -81,6 +81,13 @@
 #define LOG_MODULE "6LoWPAN"
 #define LOG_LEVEL LOG_LEVEL_6LOWPAN
 
+#ifndef SICSLOWPAN_CONF_MAC_FREE_BUF_FUNC
+#define MAC_FREE_BUF_FUNC queuebuf_numfree
+#else
+#define MAC_FREE_BUF_FUNC SICSLOWPAN_CONF_MAC_FREE_BUF_FUNC
+int MAC_FREE_BUF_FUNC(void);
+#endif
+
 #define GET16(ptr,index) (((uint16_t)((ptr)[index] << 8)) | ((ptr)[(index) + 1]))
 #define SET16(ptr,index,value) do {     \
   (ptr)[index] = ((value) >> 8) & 0xff; \
@@ -1682,7 +1689,7 @@ output(const linkaddr_t *localdest)
       fragment_count += 1 + (middle_fragn_total_payload - 1) / fragn_max_payload;
     }
 
-    int freebuf = queuebuf_numfree() - 1;
+    int freebuf = MAC_FREE_BUF_FUNC() - 1;
     LOG_INFO("output: fragmentation needed, fragments: %u, free queuebufs: %u\n",
       fragment_count, freebuf);
 
