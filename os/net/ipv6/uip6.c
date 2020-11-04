@@ -1475,7 +1475,7 @@ uip_process(uint8_t flag)
    */
   if(uip_icmp6_input(UIP_ICMP_BUF->type,
                      UIP_ICMP_BUF->icode) == UIP_ICMP6_INPUT_ERROR) {
-    LOG_ERR("Unknown ICMPv6 message type/code %d\n", UIP_ICMP_BUF->type);
+    LOG_ERR("Unknown ICMPv6 message type/code %d %d\n", UIP_ICMP_BUF->type, UIP_ICMP_BUF->icode);
     UIP_STAT(++uip_stat.icmp.drop);
     UIP_STAT(++uip_stat.icmp.typeerr);
     uipbuf_clear();
