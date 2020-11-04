@@ -298,6 +298,33 @@ echo_reply_input(void)
   return;
 }
 /*---------------------------------------------------------------------------*/
+static const char*
+dest_unreachable_code_to_str(uint8_t code)
+{
+  switch(code) {
+    case ICMP6_DST_UNREACH_NOROUTE:
+      return "no route to destination";
+    case ICMP6_DST_UNREACH_ADMIN:
+      return "administratively prohibited";
+    case ICMP6_DST_UNREACH_BEYONDSCOPE:
+      return "beyond scope of source address";
+    case ICMP6_DST_UNREACH_ADDR:
+      return "address unreachable";
+    case ICMP6_DST_UNREACH_NOPORT:
+      return "port unreachable";
+    default:
+      return "unknown code";
+  }
+}
+/*---------------------------------------------------------------------------*/
+static void
+dest_unreachable_input(void)
+{
+  LOG_WARN("Received ICMPv6 Destination Unreachable (%s)\n",
+           dest_unreachable_code_to_str(UIP_ICMP_BUF->icode));
+  uipbuf_clear();
+}
+/*---------------------------------------------------------------------------*/
 void
 uip_icmp6_echo_reply_callback_add(struct uip_icmp6_echo_reply_notification *n,
                                   uip_icmp6_echo_reply_callback_t c)
@@ -318,13 +345,16 @@ UIP_ICMP6_HANDLER(echo_request_handler, ICMP6_ECHO_REQUEST,
                   UIP_ICMP6_HANDLER_CODE_ANY, echo_request_input);
 UIP_ICMP6_HANDLER(echo_reply_handler, ICMP6_ECHO_REPLY,
                   UIP_ICMP6_HANDLER_CODE_ANY, echo_reply_input);
+UIP_ICMP6_HANDLER(dest_unreachable_handler, ICMP6_DST_UNREACH,
+                  UIP_ICMP6_HANDLER_CODE_ANY, dest_unreachable_input);
 /*---------------------------------------------------------------------------*/
 void
 uip_icmp6_init()
 {
-  /* Register Echo Request and Reply handlers */
+  /* Register Echo Request, Reply handlers, and Destination unreachable */
   uip_icmp6_register_input_handler(&echo_request_handler);
   uip_icmp6_register_input_handler(&echo_reply_handler);
+  uip_icmp6_register_input_handler(&dest_unreachable_handler);
 }
 /*---------------------------------------------------------------------------*/
 /** @} */
