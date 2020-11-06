@@ -67,6 +67,11 @@ rpl_instance_t curr_instance;
 int RPL_VALIDATE_DIO_FUNC(rpl_dio_t *dio);
 #endif /* RPL_PROBING_SELECT_FUNC */
 
+#ifdef RPL_CONF_RANK_UPDATE_CALLBACK
+#define RPL_RANK_UPDATE_CALLBACK RPL_CONF_RANK_UPDATE_CALLBACK
+void RPL_RANK_UPDATE_CALLBACK(uint16_t current_rank, uint16_t min_hoprankinc);
+#endif
+
 /*---------------------------------------------------------------------------*/
 const char *
 rpl_dag_state_to_str(enum rpl_dag_state state)
@@ -360,6 +365,14 @@ rpl_dag_update_state(void)
 
   /* Finally, update metric container */
   curr_instance.of->update_metric_container();
+
+#ifdef RPL_CONF_RANK_UPDATE_CALLBACK
+  /* We need to set MAC routecost only if the device is
+   not the root and is reachable  */
+  if(!rpl_dag_root_is_root() && rpl_is_reachable()) {
+    RPL_RANK_UPDATE_CALLBACK(curr_instance.dag.rank, curr_instance.min_hoprankinc);
+  }
+#endif /* RPL_CONF_SET_MAC_ROUTECOST */
 }
 /*---------------------------------------------------------------------------*/
 static rpl_nbr_t *
