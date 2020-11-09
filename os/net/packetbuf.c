@@ -189,16 +189,24 @@ void
 packetbuf_attr_copyto(struct packetbuf_attr *attrs,
                       struct packetbuf_addr *addrs)
 {
-  memcpy(attrs, packetbuf_attrs, sizeof(packetbuf_attrs));
-  memcpy(addrs, packetbuf_addrs, sizeof(packetbuf_addrs));
+  if(attrs != NULL) {
+    memcpy(attrs, packetbuf_attrs, sizeof(packetbuf_attrs));
+  }
+  if(addrs != NULL) {
+    memcpy(addrs, packetbuf_addrs, sizeof(packetbuf_addrs));
+  }
 }
 /*---------------------------------------------------------------------------*/
 void
 packetbuf_attr_copyfrom(struct packetbuf_attr *attrs,
                         struct packetbuf_addr *addrs)
 {
-  memcpy(packetbuf_attrs, attrs, sizeof(packetbuf_attrs));
-  memcpy(packetbuf_addrs, addrs, sizeof(packetbuf_addrs));
+  if(attrs != NULL) {
+    memcpy(packetbuf_attrs, attrs, sizeof(packetbuf_attrs));
+  }
+  if(addrs != NULL) {
+    memcpy(packetbuf_addrs, addrs, sizeof(packetbuf_addrs));
+  }
 }
 /*---------------------------------------------------------------------------*/
 int
