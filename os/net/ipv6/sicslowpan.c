@@ -82,7 +82,14 @@
 #define LOG_LEVEL LOG_LEVEL_6LOWPAN
 
 #ifndef SICSLOWPAN_CONF_MAC_FREE_BUF_FUNC
-#define MAC_FREE_BUF_FUNC queuebuf_numfree
+/* Sicslowpan uses a queuebuf internally, thus this function
+returns the number of free queuebufs available for the MAC */
+static int
+mac_free_buf(void)
+{
+  return queuebuf_numfree() - 1;
+}
+#define MAC_FREE_BUF_FUNC mac_free_buf
 #else
 #define MAC_FREE_BUF_FUNC SICSLOWPAN_CONF_MAC_FREE_BUF_FUNC
 int MAC_FREE_BUF_FUNC(void);
@@ -1692,7 +1699,8 @@ output(const linkaddr_t *localdest)
       fragment_count += 1 + (middle_fragn_total_payload - 1) / fragn_max_payload;
     }
 
-    int freebuf = MAC_FREE_BUF_FUNC() - 1;
+    int freebuf = MAC_FREE_BUF_FUNC();
+
     LOG_INFO("output: fragmentation needed, fragments: %u, free queuebufs: %u\n",
       fragment_count, freebuf);
 
