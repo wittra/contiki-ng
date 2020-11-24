@@ -1073,8 +1073,10 @@ compress_hdr_iphc(linkaddr_t *link_destaddr)
  * \param ip_len Equal to 0 if the packet is not a fragment (IP length
  * is then inferred from the L2 length), non 0 if the packet is a 1st
  * fragment.
+ *
+ * \return true if the header was successfully decompressed, else false
  */
-static void
+static bool
 uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
 {
   uint8_t tmp, iphc0, iphc1, nhc;
@@ -1164,7 +1166,7 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
       context = addr_context_lookup_by_number(sci);
       if(context == NULL) {
         LOG_ERR("uncompression: error context not found\n");
-        return;
+        return false;
       }
     }
     /* if tmp == 0 we do not have a context and therefore no prefix */
@@ -1211,7 +1213,7 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
       /* all valid cases below need the context! */
       if(context == NULL) {
         LOG_ERR("uncompression: error context not found\n");
-        return;
+        return false;
       }
       uncompress_addr(&SICSLOWPAN_IP_BUF(buf)->destipaddr, context->prefix,
                       unc_ctxconf[tmp],
@@ -1265,8 +1267,8 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
       proto = UIP_PROTO_DESTO;
       break;
     default:
-      LOG_DBG("uncompression: error unsupported ext header\n");
-      return;
+      LOG_ERR("uncompression: error unsupported ext header\n");
+      return false;
     }
     *last_nextheader = proto;
     /* uncompress the extension header */
@@ -1275,8 +1277,8 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
     exthdr->next = next;
     last_nextheader = &exthdr->next;
     if(ip_len == 0 && (uint8_t *)exthdr - uip_buf + 2 + len > sizeof(uip_buf)) {
-      LOG_DBG("uncompression: ext header points beyond uip buffer boundary\n");
-      return;
+      LOG_ERR("uncompression: ext header points beyond uip buffer boundary\n");
+      return false;
     }
     memcpy((uint8_t*)exthdr + 2, hc06_ptr, len);
     hc06_ptr += len;
@@ -1339,8 +1341,8 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
       hc06_ptr += 2;
       break;
     default:
-      LOG_DBG("uncompression: error unsupported UDP compression\n");
-      return;
+      LOG_ERR("uncompression: error unsupported UDP compression\n");
+      return false;
     }
     if(!checksum_compressed) { /* has_checksum, default  */
       memcpy(&udp_buf->udpchksum, hc06_ptr, 2);
@@ -1376,6 +1378,7 @@ uncompress_hdr_iphc(uint8_t *buf, uint16_t ip_len)
     SICSLOWPAN_IP_BUF(buf)->len[0] = (ip_len - UIP_IPH_LEN) >> 8;
     SICSLOWPAN_IP_BUF(buf)->len[1] = (ip_len - UIP_IPH_LEN) & 0x00FF;
   }
+  return true;
 }
 /** @} */
 #endif /* SICSLOWPAN_COMPRESSION >= SICSLOWPAN_COMPRESSION_IPHC */
@@ -1929,7 +1932,10 @@ input(void)
   if(SICSLOWPAN_COMPRESSION > SICSLOWPAN_COMPRESSION_IPV6 &&
      (PACKETBUF_6LO_PTR[PACKETBUF_6LO_DISPATCH] & SICSLOWPAN_DISPATCH_IPHC_MASK) == SICSLOWPAN_DISPATCH_IPHC) {
     LOG_DBG("uncompression: IPHC dispatch\n");
-    uncompress_hdr_iphc(buffer, frag_size);
+    if(!uncompress_hdr_iphc(buffer, frag_size)) {
+      LOG_ERR("uncompression: failed to decompress IPHC\n");
+      return;
+    }
   } else if(PACKETBUF_6LO_PTR[PACKETBUF_6LO_DISPATCH] == SICSLOWPAN_DISPATCH_IPV6) {
     LOG_DBG("uncompression: IPV6 dispatch\n");
     packetbuf_hdr_len += SICSLOWPAN_IPV6_HDR_LEN;
