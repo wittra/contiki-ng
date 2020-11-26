@@ -268,7 +268,7 @@ uip_sr_link_snprint(char *buf, int buflen, uip_sr_node_t *link)
   }
 
   if(link->parent == NULL) {
-    index += snprintf(buf+index, buflen-index, "  (DODAG root)");
+    index += snprintf(buf+index, buflen-index, "  (no parent)");
     if(index >= buflen) {
       return index;
     }
