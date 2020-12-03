@@ -1518,6 +1518,10 @@ send_packet(linkaddr_t *dest)
   packetbuf_set_addr(PACKETBUF_ADDR_SENDER,(void*)&uip_lladdr);
 #endif
 
+  /* Pass on unicast uipbuf flags to packetbuf */
+  packetbuf_set_attr(PACKETBUF_ATTR_UIPBUF_FLAGS,
+                     uipbuf_get_attr(UIPBUF_ATTR_FLAGS));
+
   /* Provide a callback function to receive the result of
      a packet transmission. */
   NETSTACK_MAC.send(&packet_sent, NULL);

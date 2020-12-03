@@ -230,6 +230,9 @@ enum {
   PACKETBUF_ATTR_TSCH_CHANNEL_OFFSET,
 #endif /* TSCH_WITH_LINK_SELECTOR */
 
+  /* flags passed on from uipbuf */
+  PACKETBUF_ATTR_UIPBUF_FLAGS,
+
   /* Scope 1 attributes: used between two neighbors only. */
   PACKETBUF_ATTR_FRAME_TYPE,
 #if LLSEC802154_USES_AUX_HEADER
