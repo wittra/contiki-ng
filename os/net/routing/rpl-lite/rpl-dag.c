@@ -72,6 +72,12 @@ int RPL_VALIDATE_DIO_FUNC(rpl_dio_t *dio);
 void RPL_RANK_UPDATE_CALLBACK(uint16_t current_rank, uint16_t min_hoprankinc);
 #endif
 
+#if  defined(RPL_CONF_GET_DODAG_VERSION) && defined(RPL_CONF_SET_DODAG_VERSION)
+#define RPL_GET_DODAG_VERSION RPL_CONF_GET_DODAG_VERSION
+#define RPL_SET_DODAG_VERSION RPL_CONF_SET_DODAG_VERSION
+uint8_t RPL_GET_DODAG_VERSION(uint8_t *rpl_dodag_version);
+uint8_t RPL_SET_DODAG_VERSION(uint8_t *rpl_dodag_version);
+#endif /* RPL_PROBING_SELECT_FUNC */
 /*---------------------------------------------------------------------------*/
 const char *
 rpl_dag_state_to_str(enum rpl_dag_state state)
@@ -728,12 +734,20 @@ rpl_dag_init_root(uint8_t instance_id, uip_ipaddr_t *dag_id,
 {
   uint8_t version = RPL_LOLLIPOP_INIT;
 
+#if defined(RPL_CONF_GET_DODAG_VERSION) && defined(RPL_CONF_SET_DODAG_VERSION)
+  /* Get the latest DODAG version from flash */
+  RPL_CONF_GET_DODAG_VERSION(&version);
+#endif /* defined(RPL_CONF_GET_DODAG_VERSION) && defined(RPL_CONF_SET_DODAG_VERSION) */
+
   /* If we're in an instance, first leave it */
   if(curr_instance.used) {
     /* We were already root. Increment version */
     if(uip_ipaddr_cmp(&curr_instance.dag.dag_id, dag_id)) {
       version = curr_instance.dag.version;
       RPL_LOLLIPOP_INCREMENT(version);
+ #if defined(RPL_CONF_GET_DODAG_VERSION) && defined(RPL_CONF_SET_DODAG_VERSION)
+      RPL_CONF_SET_DODAG_VERSION(&version);
+ #endif /* defined(RPL_CONF_GET_DODAG_VERSION) && defined(RPL_CONF_SET_DODAG_VERSION) */
     }
     rpl_dag_leave();
   }
