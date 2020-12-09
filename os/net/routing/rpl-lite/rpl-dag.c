@@ -223,7 +223,8 @@ rpl_global_repair(const char *str)
     if(LOG_INFO_ENABLED) {
       rpl_neighbor_print_list("Global repair (before)");
     }
-
+    /* Forget past link statistics */
+    link_stats_reset();
     /* Now do a local repair to disseminate the new version */
     rpl_local_repair("Global repair");
   }
@@ -238,6 +239,8 @@ global_repair_non_root(rpl_dio_t *dio)
     if(LOG_INFO_ENABLED) {
       rpl_neighbor_print_list("Global repair (before)");
     }
+    /* Forget past link statistics */
+    link_stats_reset();
     /* Re-initialize configuration from DIO */
     rpl_timers_stop_dag_timers();
     rpl_neighbor_set_preferred_parent(NULL);
