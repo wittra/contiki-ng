@@ -210,6 +210,19 @@ static int last_tx_status;
 static int last_rssi;
 
 /* ----------------------------------------------------------------- */
+/* sicslowpan packet sent callback                                   */
+/* ----------------------------------------------------------------- */
+
+static sicslowpan_sent_cb_state_t *next_packet_sent_cb = NULL;
+
+void
+sicslowpan_set_sent_cb(sicslowpan_sent_cb_state_t *state)
+{
+  /* Use this callback for next datagram we send */
+  next_packet_sent_cb = state;
+}
+
+/* ----------------------------------------------------------------- */
 /* Support for reassembling multiple packets                         */
 /* ----------------------------------------------------------------- */
 
@@ -1477,7 +1490,24 @@ static void
 packet_sent(void *ptr, int status, int transmissions)
 {
   const linkaddr_t *dest;
+  sicslowpan_sent_cb_state_t *packet_sent_cb = (sicslowpan_sent_cb_state_t *)ptr;
 
+  /* Per datagram sent callback */
+  if(packet_sent_cb != NULL) {
+    /* Count how more fragments to expect */
+    packet_sent_cb->frags_left--;
+    if(status != MAC_TX_OK) {
+      /* Count any MAC failure as failure for the whole datagram */
+      packet_sent_cb->success = false;
+    }
+    if(packet_sent_cb->armed && packet_sent_cb->frags_left == 0) {
+      /* Run callback */
+      packet_sent_cb->func(packet_sent_cb->success ? SICSLOWPAN_TX_OK : SICSLOWPAN_TX_FAILED);
+      packet_sent_cb->armed = false;
+    }
+  }
+
+  /* Netstack sniffer callback */
   if(callback != NULL) {
     callback->output_callback(status);
   }
@@ -1522,9 +1552,14 @@ send_packet(linkaddr_t *dest)
   packetbuf_set_attr(PACKETBUF_ATTR_UIPBUF_FLAGS,
                      uipbuf_get_attr(UIPBUF_ATTR_FLAGS));
 
+  if(next_packet_sent_cb != NULL) {
+    next_packet_sent_cb->frags_left++;
+  }
+
   /* Provide a callback function to receive the result of
-     a packet transmission. */
-  NETSTACK_MAC.send(&packet_sent, NULL);
+     a packet transmission. Pass on next_packet_sent_cb as param
+     for processing in packe_sent() */
+  NETSTACK_MAC.send(&packet_sent, next_packet_sent_cb);
 
   /* If we are sending multiple packets in a row, we need to let the
      watchdog know that we are still alive. */
@@ -1807,7 +1842,34 @@ output(const linkaddr_t *localdest)
   }
   return 1;
 }
+/*--------------------------------------------------------------------*/
+static uint8_t
+output_with_sent_cb(const linkaddr_t *localdest)
+{
+  uint8_t ret;
 
+  if(next_packet_sent_cb != NULL) {
+    next_packet_sent_cb->frags_left = 0;
+    next_packet_sent_cb->armed = false; /* only arm after calling send() on all fragments */
+    next_packet_sent_cb->success = true; /* unset on any failure */
+  }
+
+  ret = output(localdest);
+
+  if(next_packet_sent_cb != NULL) {
+    if(!ret) {
+      /* Invoke callback here. Otherwise, will be sent in packet_sent() */
+      next_packet_sent_cb->func(SICSLOWPAN_TX_FAILED);
+    } else {
+      /* Callback can now be invoked in packet_sent() */
+      next_packet_sent_cb->armed = true;
+    }
+    /* Clear */
+    next_packet_sent_cb = NULL;
+  }
+
+  return ret;
+}
 /*--------------------------------------------------------------------*/
 /** \brief Process a received 6lowpan packet.
  *
@@ -2147,7 +2209,7 @@ const struct network_driver sicslowpan_driver = {
   "sicslowpan",
   sicslowpan_init,
   input,
-  output
+  output_with_sent_cb
 };
 /*--------------------------------------------------------------------*/
 /** @} */

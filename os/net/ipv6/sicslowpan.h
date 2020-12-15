@@ -340,5 +340,24 @@ int sicslowpan_get_last_rssi(void);
 
 extern const struct network_driver sicslowpan_driver;
 
+/* sicslowpan packet sent callback */
+
+typedef enum {
+  SICSLOWPAN_TX_OK,
+  SICSLOWPAN_TX_FAILED
+} sicslowpan_tx_status_t;
+
+typedef void(* sicslowpan_sent_cb_func)(sicslowpan_tx_status_t status);
+
+typedef struct {
+  sicslowpan_sent_cb_func func;
+  uint8_t frags_left;
+  bool armed;
+  bool success;
+} sicslowpan_sent_cb_state_t;
+
+/* Set sicslowpan callback (for next packet only) */
+void sicslowpan_set_sent_cb(sicslowpan_sent_cb_state_t *state);
+
 #endif /* SICSLOWPAN_H_ */
 /** @} */
