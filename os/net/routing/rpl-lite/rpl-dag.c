@@ -352,9 +352,9 @@ rpl_dag_update_state(void)
         if(old_parent == NULL) {
           curr_instance.dag.state = DAG_JOINED;
           rpl_timers_dio_reset("Got parent");
-          LOG_WARN("found parent: ");
-          LOG_WARN_6ADDR(rpl_neighbor_get_ipaddr(curr_instance.dag.preferred_parent));
-          LOG_WARN_(", staying in DAG\n");
+          LOG_INFO("found parent: ");
+          LOG_INFO_6ADDR(rpl_neighbor_get_ipaddr(curr_instance.dag.preferred_parent));
+          LOG_INFO_(", we're now fully joined\n");
           rpl_timers_unschedule_leaving();
         }
         /* Schedule a DAO */
@@ -617,7 +617,6 @@ process_dio_init_dag(rpl_dio_t *dio)
 
   LOG_ANNOTATE("#A init=%u\n", curr_instance.dag.dag_id.u8[sizeof(curr_instance.dag.dag_id) - 1]);
 
-  LOG_WARN("just joined, no parent yet, setting timer for leaving\n");
   rpl_timers_schedule_leaving();
 
   return 1;
