@@ -63,6 +63,10 @@ rpl_instance_t curr_instance;
 
 /*---------------------------------------------------------------------------*/
 
+#ifdef RPL_CALLBACK_LEAVE_DAG
+void RPL_CALLBACK_LEAVE_DAG(void);
+#endif /* RPL_CALLBACK_LEAVE_DAG */
+
 #ifdef RPL_VALIDATE_DIO_FUNC
 int RPL_VALIDATE_DIO_FUNC(rpl_dio_t *dio);
 #endif /* RPL_PROBING_SELECT_FUNC */
@@ -136,13 +140,20 @@ rpl_dag_leave(void)
 
   /* Mark instance as unused */
   curr_instance.used = 0;
+
+#ifdef RPL_CALLBACK_LEAVE_DAG
+  /* Call custom callback if set */
+  RPL_CALLBACK_LEAVE_DAG();
+#endif /* RPL_CALLBACK_LEAVE_DAG */
 }
 /*---------------------------------------------------------------------------*/
 void
 rpl_dag_poison_and_leave(void)
 {
-  curr_instance.dag.state = DAG_POISONING;
-  rpl_timers_schedule_state_update();
+  if(curr_instance.used) {
+    curr_instance.dag.state = DAG_POISONING;
+    rpl_timers_schedule_state_update();
+  }
 }
 /*---------------------------------------------------------------------------*/
 void
