@@ -282,7 +282,7 @@ send_new_dao(void *ptr)
 #else /* RPL_WITH_DAO_ACK */
   /* No DAO-ACK: assume we are reachable as soon as we send a DAO */
   if(curr_instance.dag.state == DAG_JOINED) {
-    curr_instance.dag.state = DAG_REACHABLE;
+    rpl_set_state(DAG_REACHABLE);
   }
   rpl_timers_dio_reset("Reachable");
   /* There is no DAO-ACK, schedule a refresh. */

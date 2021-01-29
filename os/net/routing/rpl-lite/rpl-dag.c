@@ -67,6 +67,10 @@ rpl_instance_t curr_instance;
 void RPL_CALLBACK_LEAVE_DAG(void);
 #endif /* RPL_CALLBACK_LEAVE_DAG */
 
+#ifdef RPL_CALLBACK_STATE_CHANGED
+void RPL_CALLBACK_STATE_CHANGED(enum rpl_dag_state state);
+#endif /* RPL_CALLBACK_STATE_CHANGED */
+
 #ifdef RPL_VALIDATE_DIO_FUNC
 int RPL_VALIDATE_DIO_FUNC(rpl_dio_t *dio);
 #endif /* RPL_PROBING_SELECT_FUNC */
@@ -97,6 +101,20 @@ rpl_dag_state_to_str(enum rpl_dag_state state)
       return "poisoning";
     default:
       return "unknown";
+  }
+}
+/*---------------------------------------------------------------------------*/
+void
+rpl_set_state(enum rpl_dag_state state)
+{
+  if(state != curr_instance.dag.state) {
+    LOG_INFO("State transition %s -> %s\n",
+             rpl_dag_state_to_str(curr_instance.dag.state),
+             rpl_dag_state_to_str(state));
+    curr_instance.dag.state = state;
+#ifdef RPL_CALLBACK_STATE_CHANGED
+    RPL_CALLBACK_STATE_CHANGED(state);
+#endif /* RPL_CALLBACK_STATE_CHANGED */
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -151,7 +169,7 @@ void
 rpl_dag_poison_and_leave(void)
 {
   if(curr_instance.used) {
-    curr_instance.dag.state = DAG_POISONING;
+    rpl_set_state(DAG_POISONING);
     rpl_timers_schedule_state_update();
   }
 }
@@ -165,7 +183,7 @@ rpl_dag_periodic(unsigned seconds)
         curr_instance.dag.lifetime > seconds ? curr_instance.dag.lifetime - seconds : 0;
       if(curr_instance.dag.lifetime == 0) {
         LOG_WARN("DAG expired, poison and leave\n");
-        curr_instance.dag.state = DAG_POISONING;
+        rpl_set_state(DAG_POISONING);
         rpl_timers_schedule_state_update();
       } else if(curr_instance.dag.lifetime < 300 && curr_instance.dag.preferred_parent != NULL) {
         /* Five minutes before expiring, start sending unicast DIS to get an update */
@@ -272,7 +290,7 @@ rpl_local_repair(const char *str)
   if(curr_instance.used) { /* Check needed because this is a public function */
     LOG_WARN("local repair (%s)\n", str);
     if(!rpl_dag_root_is_root()) {
-      curr_instance.dag.state = DAG_INITIALIZED; /* Reset DAG state */
+      rpl_set_state(DAG_INITIALIZED); /* Reset DAG state */
     }
     curr_instance.of->reset(); /* Reset OF */
     rpl_neighbor_remove_all(); /* Remove all neighbors */
@@ -361,7 +379,7 @@ rpl_dag_update_state(void)
       if(curr_instance.dag.preferred_parent != NULL) {
         /* We just got a parent (was NULL), reset trickle timer to advertise this */
         if(old_parent == NULL) {
-          curr_instance.dag.state = DAG_JOINED;
+          rpl_set_state(DAG_JOINED);
           rpl_timers_dio_reset("Got parent");
           LOG_INFO("found parent: ");
           LOG_INFO_6ADDR(rpl_neighbor_get_ipaddr(curr_instance.dag.preferred_parent));
@@ -372,7 +390,7 @@ rpl_dag_update_state(void)
         rpl_timers_schedule_dao();
       } else {
         /* We have no more parent, schedule DIS to get a chance to hear updated state */
-        curr_instance.dag.state = DAG_INITIALIZED;
+        rpl_set_state(DAG_INITIALIZED);
         LOG_WARN("no parent, scheduling periodic DIS, will leave if no parent is found\n");
         rpl_timers_dio_reset("Poison routes");
         rpl_timers_schedule_periodic_dis();
@@ -579,7 +597,7 @@ init_dag_from_dio(rpl_dio_t *dio)
   curr_instance.lifetime_unit = dio->lifetime_unit;
 
   /* DAG */
-  curr_instance.dag.state = DAG_INITIALIZED;
+  rpl_set_state(DAG_INITIALIZED);
   curr_instance.dag.preference = dio->preference;
   curr_instance.dag.grounded = dio->grounded;
   curr_instance.dag.version = dio->version;
@@ -697,7 +715,7 @@ rpl_process_dao_ack(uint8_t sequence, uint8_t status)
   if(sequence == curr_instance.dag.dao_last_seqno) {
     int status_ok = status < RPL_DAO_ACK_UNABLE_TO_ACCEPT;
     if(curr_instance.dag.state == DAG_JOINED && status_ok) {
-      curr_instance.dag.state = DAG_REACHABLE;
+      rpl_set_state(DAG_REACHABLE);
       rpl_timers_dio_reset("Reachable");
     }
     /* Let the rpl-timers module know that we got an ACK for the last DAO */
@@ -707,7 +725,7 @@ rpl_process_dao_ack(uint8_t sequence, uint8_t status)
       /* We got a NACK, start poisoning and leave */
       LOG_WARN("DAO-NACK received with seqno %u, status %u, poison and leave\n",
               sequence, status);
-      curr_instance.dag.state = DAG_POISONING;
+      rpl_set_state(DAG_POISONING);
     }
   }
 }
@@ -796,7 +814,7 @@ rpl_dag_init_root(uint8_t instance_id, uip_ipaddr_t *dag_id,
   curr_instance.dag.lifetime = RPL_LIFETIME(RPL_INFINITE_LIFETIME);
   /* dio_intcurrent will be reset by rpl_timers_dio_reset() */
   curr_instance.dag.dio_intcurrent = 0;
-  curr_instance.dag.state = DAG_REACHABLE;
+  rpl_set_state(DAG_REACHABLE);
 
   rpl_timers_dio_reset("Init root");
 
