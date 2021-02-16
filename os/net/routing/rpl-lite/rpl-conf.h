@@ -398,12 +398,12 @@
 
 /* Set to 1 to drop packets when a forwarding loop is detected
  * on a packet that already had an error signaled, as per RFC6550 - 11.2.2.2.
- * Disabled by default for more reliability: even in the event of a loop,
- * packets get a chance to eventually find their way to the destination. */
+ * Enabled by default: this is important to avoid generating hundreds packets
+ * in the event the RPL root is fully unavaiable. */
 #ifdef RPL_CONF_LOOP_ERROR_DROP
 #define RPL_LOOP_ERROR_DROP RPL_CONF_LOOP_ERROR_DROP
 #else /* RPL_CONF_LOOP_ERROR_DROP */
-#define RPL_LOOP_ERROR_DROP 0
+#define RPL_LOOP_ERROR_DROP 1
 #endif /* RPL_CONF_LOOP_ERROR_DROP */
 
 /** @} */
