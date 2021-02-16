@@ -136,11 +136,12 @@ rpl_dag_t *rpl_get_any_dag(void);
  *
  * \param sender The IPv6 address of the originator
  * \param sender_rank The rank advertised by the sender in the HBH header
- * \param loop_detected 1 if we could detect a loop while forwarding, 0 otherwise
- * \param rank_error_signaled 1 if the HBH header advertises a rank error, 0 otherwise
+ * \param rank_error_signaled true if the HBH header advertises a rank error, false otherwise
+ * \param down true if "Down" flag was set, false otherwise
+ * \param loop_detected_ptr by reference argument, set on return if RPL detected a loop, unset otherwise
  * \return 1 if the packet is to be forwarded, 0 if it is to be dropped
 */
-int rpl_process_hbh(rpl_nbr_t *sender, uint16_t sender_rank, int loop_detected, int rank_error_signaled);
+bool rpl_process_hbh(rpl_nbr_t *sender, uint16_t sender_rank, bool rank_error_signaled, bool down, bool *loop_detected_ptr);
 
 /**
  * Processes incoming DIS

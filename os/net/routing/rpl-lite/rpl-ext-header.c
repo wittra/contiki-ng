@@ -310,30 +310,30 @@ insert_srh_header(void)
 int
 rpl_ext_header_hbh_update(uint8_t *ext_buf, int opt_offset)
 {
-  int down;
-  int rank_error_signaled;
-  int loop_detected;
+  bool down;
+  bool rank_error_signaled;
+  bool loop_detected;
   uint16_t sender_rank;
-  uint8_t sender_closer;
   rpl_nbr_t *sender;
+  bool ret;
   struct uip_hbho_hdr *hbh_hdr = (struct uip_hbho_hdr *)ext_buf;
   struct uip_ext_hdr_opt_rpl *rpl_opt = (struct uip_ext_hdr_opt_rpl *)(ext_buf + opt_offset);
 
   if(hbh_hdr->len != ((RPL_HOP_BY_HOP_LEN - 8) / 8)
       || rpl_opt->opt_type != UIP_EXT_HDR_OPT_RPL
       || rpl_opt->opt_len != RPL_HDR_OPT_LEN) {
-    LOG_ERR("hop-by-hop extension header has wrong size or type (%u %u %u)\n",
+    LOG_WARN("hop-by-hop extension header has wrong size or type (%u %u %u)\n",
         hbh_hdr->len, rpl_opt->opt_type, rpl_opt->opt_len);
     return 0; /* Drop */
   }
 
   if(!curr_instance.used || curr_instance.instance_id != rpl_opt->instance) {
-    LOG_ERR("unknown instance: %u\n", rpl_opt->instance);
+    LOG_WARN("unknown instance: %u\n", rpl_opt->instance);
     return 0; /* Drop */
   }
 
   if(rpl_opt->flags & RPL_HDR_OPT_FWD_ERR) {
-    LOG_ERR("forward error!\n");
+    LOG_WARN("forward error signaled, dropping packet\n");
     return 0; /* Drop */
   }
 
@@ -341,23 +341,16 @@ rpl_ext_header_hbh_update(uint8_t *ext_buf, int opt_offset)
   sender_rank = UIP_HTONS(rpl_opt->senderrank);
   sender = nbr_table_get_from_lladdr(rpl_neighbors, packetbuf_addr(PACKETBUF_ADDR_SENDER));
   rank_error_signaled = (rpl_opt->flags & RPL_HDR_OPT_RANK_ERR) ? 1 : 0;
-  sender_closer = sender_rank < curr_instance.dag.rank;
-  loop_detected = (down && !sender_closer) || (!down && sender_closer);
 
-  LOG_INFO("ext hdr: packet from ");
-  LOG_INFO_6ADDR(&UIP_IP_BUF->srcipaddr);
-  LOG_INFO_(" to ");
-  LOG_INFO_6ADDR(&UIP_IP_BUF->destipaddr);
-  LOG_INFO_(" going %s, sender closer %d (%d < %d), rank error %u, loop detected %u\n",
-      down == 1 ? "down" : "up", sender_closer, sender_rank,
-      curr_instance.dag.rank, rank_error_signaled, loop_detected);
+  ret = rpl_process_hbh(sender, sender_rank, rank_error_signaled, down, &loop_detected);
 
-  if(loop_detected) {
+  if(ret && loop_detected) {
     /* Set forward error flag */
+    LOG_WARN("Loop detected, setting RPL_HDR_OPT_RANK_ERR\n");
     rpl_opt->flags |= RPL_HDR_OPT_RANK_ERR;
   }
 
-  return rpl_process_hbh(sender, sender_rank, loop_detected, rank_error_signaled);
+  return ret;
 }
 /*---------------------------------------------------------------------------*/
 /* In-place update of the RPL HBH extension header, when already present

@@ -731,24 +731,11 @@ rpl_process_dao_ack(uint8_t sequence, uint8_t status)
 }
 #endif /* RPL_WITH_DAO_ACK */
 /*---------------------------------------------------------------------------*/
-int
-rpl_process_hbh(rpl_nbr_t *sender, uint16_t sender_rank, int loop_detected, int rank_error_signaled)
+bool
+rpl_process_hbh(rpl_nbr_t *sender, uint16_t sender_rank, bool rank_error_signaled, bool down, bool *loop_detected_ptr)
 {
-  int drop = 0;
-
-  if(loop_detected) {
-    if(rank_error_signaled) {
-#if RPL_LOOP_ERROR_DROP
-      /* Drop packet and reset trickle timer, as per  RFC6550 - 11.2.2.2 */
-      rpl_timers_dio_reset("HBH error");
-      LOG_WARN("rank error and loop detected, dropping\n");
-      drop = 1;
-#endif /* RPL_LOOP_ERROR_DROP */
-    }
-    /* Attempt to repair the loop by sending a unicast DIO back to the sender
-     * so that it gets a fresh update of our rank. */
-    rpl_timers_schedule_unicast_dio(sender);
-  }
+  bool drop = false;
+  bool sender_closer;
 
   if(rank_error_signaled) {
     /* A rank error was signalled, attempt to repair it by updating
@@ -759,6 +746,33 @@ rpl_process_hbh(rpl_nbr_t *sender, uint16_t sender_rank, int loop_detected, int 
       the new parent will be used to forward the current packet. */
       rpl_dag_update_state();
     }
+  }
+
+  /* Do this after any potential rpl_dag_update_state(), to ensure
+   * curr_instance.dag.rank is up-to-date. */
+  sender_closer = sender_rank < curr_instance.dag.rank;
+  *loop_detected_ptr = (down && !sender_closer) || (!down && sender_closer);
+
+  LOG_INFO("ext hdr: packet from ");
+  LOG_INFO_6ADDR(&UIP_IP_BUF->srcipaddr);
+  LOG_INFO_(" to ");
+  LOG_INFO_6ADDR(&UIP_IP_BUF->destipaddr);
+  LOG_INFO_(" going %s, sender closer %d (%d < %d), rank error %u, loop detected %u\n",
+      down == 1 ? "down" : "up", sender_closer, sender_rank,
+      curr_instance.dag.rank, rank_error_signaled, *loop_detected_ptr);
+
+  if(*loop_detected_ptr) {
+    if(rank_error_signaled) {
+#if RPL_LOOP_ERROR_DROP
+      /* Drop packet and reset trickle timer, as per  RFC6550 - 11.2.2.2 */
+      rpl_timers_dio_reset("HBH error");
+      LOG_WARN("rank error and loop detected, dropping\n");
+      drop = true;
+#endif /* RPL_LOOP_ERROR_DROP */
+    }
+    /* Attempt to repair the loop by sending a unicast DIO back to the sender
+     * so that it gets a fresh update of our rank. */
+    rpl_timers_schedule_unicast_dio(sender);
   }
 
   return !drop;
