@@ -99,6 +99,15 @@
 #endif /* RPL_CONF_SUPPORTED_OFS */
 
 /*
+ * Symbol declaraiton for all known OFs
+ */
+#ifdef RPL_CONF_SUPPORTED_OFS_SYMBOLS
+#define RPL_SUPPORTED_OFS_SYMBOLS RPL_CONF_SUPPORTED_OFS_SYMBOLS
+#else /* RPL_CONF_SUPPORTED_OFS_SYMBOLS */
+#define RPL_SUPPORTED_OFS_SYMBOLS rpl_of0, rpl_mrhof
+#endif /* RPL_CONF_SUPPORTED_OFS_SYMBOLS */
+
+/*
  * Enable/disable RPL Metric Containers (MC). The actual MC in use
  * for a given DODAG is decided at runtime, when joining. Note that
  * OF0 (RFC6552) operates without MC, and so does MRHOF (RFC6719) when
