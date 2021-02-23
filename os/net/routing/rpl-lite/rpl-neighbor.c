@@ -128,6 +128,12 @@ rpl_neighbor_snprint(char *buf, int buflen, rpl_nbr_t *nbr)
   if(index >= buflen) {
     return index;
   }
+  index += snprintf(buf+index, buflen-index,
+                    ", RSSI %d dBm",
+                    stats != NULL ? stats->rssi : 0);
+  if(index >= buflen) {
+    return index;
+  }
   if(nbr->better_parent_since > 0) {
     index += snprintf(buf+index, buflen-index,
                               ", better since %u min)",
