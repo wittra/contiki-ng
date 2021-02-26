@@ -280,6 +280,10 @@ else
   Q=@
 endif
 
+ifeq ($(SYMBOL_DEBUG),1)
+TRACE_CC = echo $@ $< >> $(O_C_MAP)
+endif
+
 ### Forward comma-separated list of arbitrary defines to the compiler
 
 COMMA := ,
