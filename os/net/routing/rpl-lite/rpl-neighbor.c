@@ -103,11 +103,12 @@ rpl_neighbor_snprint(char *buf, int buflen, rpl_nbr_t *nbr)
     return index;
   }
   index += snprintf(buf+index, buflen-index,
-      "%5u, %5u => %5u -- %2u %c%c%c%c%c",
+      " %5u, %5u => %5u -- %2u %2u %c%c%c%c%c",
       nbr->rank,
       rpl_neighbor_get_link_metric(nbr),
       rpl_neighbor_rank_via_nbr(nbr),
       stats != NULL ? stats->freshness : 0,
+      nbr->dao_noack_count,
       (nbr->rank == ROOT_RANK) ? 'r' : ' ',
       nbr == best ? 'b' : ' ',
       (acceptable_rank(rpl_neighbor_rank_via_nbr(nbr)) && rpl_neighbor_is_acceptable_parent(nbr)) ? 'a' : ' ',

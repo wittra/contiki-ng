@@ -320,8 +320,27 @@ void
 rpl_timers_notify_dao_ack(void)
 {
   /* The last DAO was ACKed. Schedule refresh to avoid route expiration. This
-  implicitly de-schedules resend_dao, as both share curr_instance.dag.dao_timer */
+     implicitly de-schedules resend_dao, as both share curr_instance.dag.dao_timer */
   schedule_dao_refresh();
+  if(curr_instance.dag.preferred_parent != NULL) {
+    /* Reset NACK count */
+    curr_instance.dag.preferred_parent->dao_noack_count = 0;
+  }
+  rpl_timers_schedule_state_update();
+}
+/*---------------------------------------------------------------------------*/
+void
+rpl_timers_notify_dao_noack(void)
+{
+  /* Got DAO-ACK or no-ACK on preferred parent, update counter.
+   * Cleared on DAO-ACK or repair (when entry is removed). */
+  if(curr_instance.dag.preferred_parent != NULL) {
+    curr_instance.dag.preferred_parent->dao_noack_count = MIN(0xff, curr_instance.dag.preferred_parent->dao_noack_count + 1);
+  }
+  rpl_timers_schedule_state_update();
+#if RPL_REPAIR_ON_DAO_NOACK
+  rpl_local_repair("DAO no-ACK");
+#endif /* RPL_REPAIR_ON_DAO_NOACK */
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -336,9 +355,9 @@ resend_dao(void *ptr)
   if(curr_instance.dag.dao_transmissions < RPL_DAO_MAX_RETRANSMISSIONS) {
     schedule_dao_retransmission();
   } else {
-    /* No more retransmissions. Perform local repair. */
-    rpl_local_repair("DAO max rtx");
-    return;
+    /* No more retransmissions. Notify no-ack */
+    LOG_WARN("Reached DAO max retransmissions, notify NACK\n");
+    rpl_timers_notify_dao_noack();
   }
 }
 #endif /* RPL_WITH_DAO_ACK */

@@ -718,14 +718,15 @@ rpl_process_dao_ack(uint8_t sequence, uint8_t status)
       rpl_set_state(DAG_REACHABLE);
       rpl_timers_dio_reset("Reachable");
     }
-    /* Let the rpl-timers module know that we got an ACK for the last DAO */
-    rpl_timers_notify_dao_ack();
 
     if(!status_ok) {
       /* We got a NACK, start poisoning and leave */
       LOG_WARN("DAO-NACK received with seqno %u, status %u, poison and leave\n",
               sequence, status);
       rpl_set_state(DAG_POISONING);
+    } else {
+      /* Let the rpl-timers module know that we got an ACK for the last DAO */
+      rpl_timers_notify_dao_ack();
     }
   }
 }

@@ -139,6 +139,15 @@
 #endif /* RPL_CONF_WITH_DAO_ACK */
 
 /*
+ * Automatically perform a local repair on DAO NACK/no-ACK
+ */
+#ifdef RPL_CONF_REPAIR_ON_DAO_NOACK
+#define RPL_REPAIR_ON_DAO_NOACK RPL_CONF_REPAIR_ON_DAO_NOACK
+#else
+#define RPL_REPAIR_ON_DAO_NOACK 1
+#endif /* RPL_CONF_REPAIR_ON_DAO_NOACK */
+
+/*
  * Setting the RPL_TRICKLE_REFRESH_DAO_ROUTES will make the RPL root
  * increase the DTSN (Destination Advertisement Trigger Sequence Number)
  * from the DIO trickle timer. If set to 4, DTSN will be increased every 4th

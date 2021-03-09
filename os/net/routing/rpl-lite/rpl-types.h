@@ -142,6 +142,7 @@ struct rpl_nbr {
 #endif /* RPL_WITH_MC */
   rpl_rank_t rank;
   uint8_t dtsn;
+  uint8_t dao_noack_count;
 };
 typedef struct rpl_nbr rpl_nbr_t;
 
