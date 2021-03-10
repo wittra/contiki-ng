@@ -376,7 +376,7 @@ update_hbh_header(void)
     }
 
     /* Update sender rank and instance, will update flags next */
-    rpl_opt->senderrank = UIP_HTONS(curr_instance.dag.rank);
+    rpl_opt->senderrank = rpl_get_leaf_only() ? RPL_INFINITE_RANK : UIP_HTONS(curr_instance.dag.rank);
     rpl_opt->instance = curr_instance.instance_id;
   }
 
@@ -413,7 +413,7 @@ insert_hbh_header(void)
   rpl_opt->opt_type = UIP_EXT_HDR_OPT_RPL;
   rpl_opt->opt_len = RPL_HDR_OPT_LEN;
   rpl_opt->flags = 0;
-  rpl_opt->senderrank = UIP_HTONS(curr_instance.dag.rank);
+  rpl_opt->senderrank = rpl_get_leaf_only() ? RPL_INFINITE_RANK : UIP_HTONS(curr_instance.dag.rank);
   rpl_opt->instance = curr_instance.instance_id;
 
   uipbuf_add_ext_hdr(RPL_HOP_BY_HOP_LEN);
