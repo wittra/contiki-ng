@@ -346,13 +346,12 @@ rpl_timers_notify_dao_noack(void)
 static void
 resend_dao(void *ptr)
 {
-  /* Increment transmission counter before sending */
-  curr_instance.dag.dao_transmissions++;
-  /* Send a DAO with own prefix as target and default lifetime */
-  rpl_icmp6_dao_output(curr_instance.default_lifetime);
-
   /* Schedule next retransmission, or abort */
-  if(curr_instance.dag.dao_transmissions < RPL_DAO_MAX_RETRANSMISSIONS) {
+  if(curr_instance.dag.dao_transmissions < 1 + RPL_DAO_MAX_RETRANSMISSIONS) {
+    /* Increment transmission counter before sending */
+    curr_instance.dag.dao_transmissions++;
+    /* Send a DAO with own prefix as target and default lifetime */
+    rpl_icmp6_dao_output(curr_instance.default_lifetime);
     schedule_dao_retransmission();
   } else {
     /* No more retransmissions. Notify no-ack */
