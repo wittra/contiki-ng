@@ -76,7 +76,7 @@ coap_retransmit_transaction(coap_timer_t *nt)
       LOG_DBG_("%"PRIx8, t->token[i]);
     LOG_DBG_(" (%u)\n", t->retrans_counter);
   } else {
-    LOG_WARN("Retransmitting %u (%u)\n", t->mid, t->retrans_counter);
+    LOG_INFO("Retransmitting %u (%u)\n", t->mid, t->retrans_counter);
   }
   coap_send_transaction(t);
 }

@@ -470,7 +470,7 @@ output_fallback(void)
     return;
   }
 #else
-  LOG_ERR("output: destination off-link and no default route\n");
+  LOG_WARN("output: destination off-link and no default route\n");
 #endif /* !UIP_FALLBACK_INTERFACE */
 }
 /*---------------------------------------------------------------------------*/

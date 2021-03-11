@@ -1601,7 +1601,7 @@ fragment_copy_payload_and_send(uint16_t uip_offset, linkaddr_t *dest) {
   if((last_tx_status == MAC_TX_COLLISION) ||
      (last_tx_status == MAC_TX_ERR) ||
      (last_tx_status == MAC_TX_ERR_FATAL)) {
-    LOG_ERR("output: error in fragment tx, dropping subsequent fragments.\n");
+    LOG_WARN("output: error in fragment tx, dropping subsequent fragments.\n");
     return 0;
   }
   return 1;
@@ -1968,7 +1968,7 @@ input(void)
       frag_context = add_fragment(frag_tag, frag_size, frag_offset);
 
       if(frag_context == -1) {
-        LOG_ERR("input: reassembly context not found (tag %d)\n", frag_tag);
+        LOG_WARN("input: reassembly context not found (tag %d)\n", frag_tag);
         return;
       }
 
